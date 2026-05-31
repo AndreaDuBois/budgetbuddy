@@ -223,6 +223,80 @@ async def join_post(
     return RedirectResponse("/login?joined=1", status_code=302)
 
 
+@router.get("/accounts/profile", response_class=HTMLResponse)
+async def profile_page(request: Request, db: Session = Depends(get_db)):
+    user_jwt = require_authenticated(request)
+    if not user_jwt:
+        return RedirectResponse("/login", status_code=302)
+    user = db.query(User).filter(User.id == int(user_jwt["sub"])).first()
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+    return templates.TemplateResponse(request, "accounts/profile.html", {
+        "current_user": user_jwt,
+        "role": user_jwt.get("role"),
+        "user": user,
+        "saved": request.query_params.get("saved"),
+    })
+
+
+@router.post("/accounts/profile", response_class=HTMLResponse)
+async def profile_post(
+    request: Request,
+    display_name: str = Form(...),
+    email: str = Form(...),
+    current_password: str = Form(""),
+    new_password: str = Form(""),
+    confirm_password: str = Form(""),
+    db: Session = Depends(get_db),
+):
+    user_jwt = require_authenticated(request)
+    if not user_jwt:
+        return RedirectResponse("/login", status_code=302)
+
+    user = db.query(User).filter(User.id == int(user_jwt["sub"])).first()
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    def _err(msg):
+        return templates.TemplateResponse(request, "accounts/profile.html", {
+            "current_user": user_jwt, "role": user_jwt.get("role"),
+            "user": user, "error": msg,
+        })
+
+    email_clean = email.lower().strip()
+    if email_clean != user.email:
+        if db.query(User).filter(User.email == email_clean, User.id != user.id).first():
+            return _err("That email is already in use by another account.")
+
+    if new_password:
+        if not verify_password(current_password, user.password_hash):
+            return _err("Current password is incorrect.")
+        pw_error = validate_password(new_password)
+        if pw_error:
+            return _err(pw_error)
+        if new_password != confirm_password:
+            return _err("New passwords do not match.")
+        user.password_hash = hash_password(new_password)
+
+    user.display_name = display_name.strip()
+    user.email = email_clean
+    db.commit()
+
+    token_data = {
+        "sub": str(user.id),
+        "role": user.role,
+        "email": user.email,
+        "display_name": user.display_name,
+        "family_id": str(user.family_id or 0),
+    }
+    if user.role == "kid" and user.kid_profile_id:
+        token_data["kid_id"] = str(user.kid_profile_id)
+    new_token = create_access_token(token_data)
+    resp = RedirectResponse("/accounts/profile?saved=1", status_code=302)
+    resp.set_cookie("access_token", new_token, httponly=True, samesite="lax", max_age=28800)
+    return resp
+
+
 @router.get("/about", response_class=HTMLResponse)
 async def about_page(request: Request):
     return templates.TemplateResponse(request, "about.html", {})
