@@ -10,6 +10,7 @@ from auth import (
 )
 from database import get_db
 from models import Family, Invitation, KidProfile, User
+import secrets as _secrets
 from templates_config import templates
 
 router = APIRouter()
@@ -122,13 +123,51 @@ async def join_page(request: Request, token: str, db: Session = Depends(get_db))
     if not invite or invite.used_at or invite.expires_at < datetime.utcnow():
         return templates.TemplateResponse(request, "join.html", {"invalid": True})
 
+    logged_in = require_authenticated(request)
     kid_name = invite.kid_profile.name if invite.kid_profile else None
     return templates.TemplateResponse(request, "join.html", {
         "token": token,
         "role": invite.role,
         "email": invite.email or "",
         "kid_name": kid_name,
+        "logged_in_user": logged_in,
     })
+
+
+@router.post("/join/{token}/link", response_class=HTMLResponse)
+async def join_link_post(request: Request, token: str, db: Session = Depends(get_db)):
+    """Link an already-logged-in user's account to the family in the invite."""
+    user_jwt = require_authenticated(request)
+    if not user_jwt:
+        return RedirectResponse(f"/join/{token}", status_code=302)
+
+    invite = db.query(Invitation).filter(Invitation.token == token).first()
+    if not invite or invite.used_at or invite.expires_at < datetime.utcnow():
+        return templates.TemplateResponse(request, "join.html", {"invalid": True})
+
+    user = db.query(User).filter(User.id == int(user_jwt["sub"])).first()
+    if not user:
+        return RedirectResponse("/login", status_code=302)
+
+    user.family_id = invite.family_id
+    invite.used_at = datetime.utcnow()
+    db.commit()
+
+    token_data = {
+        "sub": str(user.id),
+        "role": user.role,
+        "email": user.email,
+        "display_name": user.display_name,
+        "family_id": str(user.family_id),
+    }
+    if user.role == "kid" and user.kid_profile_id:
+        token_data["kid_id"] = str(user.kid_profile_id)
+
+    new_token = create_access_token(token_data)
+    dest = "/parent/dashboard" if user.role == "parent" else "/kid/dashboard"
+    resp = RedirectResponse(dest, status_code=302)
+    resp.set_cookie("access_token", new_token, httponly=True, samesite="lax", max_age=28800)
+    return resp
 
 
 @router.post("/join/{token}", response_class=HTMLResponse)

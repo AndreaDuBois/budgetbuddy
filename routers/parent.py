@@ -8,7 +8,7 @@ from typing import Optional
 
 from auth import hash_password, require_parent, validate_password
 from database import get_db
-from models import BudgetEntry, EventCategory, Invitation, KidProfile, Receipt, ShoppingEvent, User
+from models import BudgetEntry, EventCategory, Invitation, KidEventBudget, KidProfile, Receipt, ShoppingEvent, User
 from templates_config import templates
 
 router = APIRouter(prefix="/parent")
@@ -522,7 +522,15 @@ async def budgets_page(request: Request, event_id: int, db: Session = Depends(ge
     for entry in db.query(BudgetEntry).filter(BudgetEntry.event_id == event_id).all():
         existing.setdefault(entry.kid_id, {})[entry.category_id] = entry.budgeted_amount
 
-    ctx.update({"event": event, "kids": kids, "existing": existing, "active": "events"})
+    # Total budgets per kid for this event
+    totals = {}
+    for kb in db.query(KidEventBudget).filter(
+        KidEventBudget.event_id == event_id,
+        KidEventBudget.family_id == fid,
+    ).all():
+        totals[kb.kid_id] = kb.total_budget
+
+    ctx.update({"event": event, "kids": kids, "existing": existing, "totals": totals, "active": "events"})
     return templates.TemplateResponse(request, "parent/event_budgets.html", ctx)
 
 
@@ -544,8 +552,30 @@ async def budgets_post(
     form = await request.form()
     kids = db.query(KidProfile).filter(KidProfile.family_id == fid).all()
 
-    for cat in event.categories:
-        for kid in kids:
+    for kid in kids:
+        # Save total budget for this kid+event
+        raw_total = form.get(f"total_{kid.id}", "").strip()
+        try:
+            total = float(raw_total) if raw_total else 0.0
+        except ValueError:
+            total = 0.0
+
+        kb = db.query(KidEventBudget).filter(
+            KidEventBudget.kid_id == kid.id,
+            KidEventBudget.event_id == event_id,
+        ).first()
+        if kb:
+            kb.total_budget = total
+        else:
+            db.add(KidEventBudget(
+                kid_id=kid.id,
+                event_id=event_id,
+                total_budget=total,
+                family_id=fid,
+            ))
+
+        # Save per-category amounts
+        for cat in event.categories:
             key = f"amount_{kid.id}_{cat.id}"
             raw = form.get(key, "").strip()
             try:

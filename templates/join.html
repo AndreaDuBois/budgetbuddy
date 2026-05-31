@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Join — Pocket Money{% endblock %}
 {% block subtitle %}
-  {% if invalid %}Invalid or expired invite{% elif role == "kid" %}Set your password{% else %}Create your account{% endif %}
+  {% if invalid %}Invalid or expired invite{% elif role == "kid" %}Set your password{% else %}Join a family{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,38 @@
 </div>
 <a href="/login" class="btn-flat waves-effect indigo-text">Back to Sign In</a>
 
+{% elif logged_in_user %}
+{# ── Already signed in — offer to link this account to the family ── #}
+<div class="card-panel blue lighten-5 blue-text text-darken-2" style="border-radius:6px;padding:0.875rem 1rem;margin-bottom:1.25rem">
+  <i class="material-icons left" style="font-size:1.1rem">info</i>
+  You're already signed in as <strong>{{ logged_in_user.display_name }}</strong>.
+</div>
+
+{% if kid_name %}
+<p style="font-size:0.9rem;color:#424242;margin-bottom:1.25rem">
+  This invite will link your account to <strong>{{ kid_name }}</strong>'s family. Tap below to join.
+</p>
 {% else %}
+<p style="font-size:0.9rem;color:#424242;margin-bottom:1.25rem">
+  This invite will add your account to a family. Once joined, you'll share the same kids, events, and budgets as the parent who invited you.
+</p>
+{% endif %}
+
+<form method="post" action="/join/{{ token }}/link">
+  <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-large" style="width:100%">
+    <i class="material-icons left">group_add</i>Join This Family
+  </button>
+</form>
+
+<div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #e0e0e0">
+  <p style="font-size:0.82rem;color:#9e9e9e;margin-bottom:0.5rem">
+    Want to use a different account instead?
+  </p>
+  <a href="/logout" style="font-size:0.85rem;color:#5c6bc0">Sign out and use a different account</a>
+</div>
+
+{% else %}
+{# ── Normal join / password-set form ── #}
 
 {% if kid_name %}
 <p style="font-size:0.9rem;color:#616161;margin-bottom:1rem">
@@ -48,7 +79,6 @@
            value="{{ (form.email if form else email) }}" />
     <label for="email" class="active">Email</label>
   </div>
-
   <div class="input-field">
     <i class="material-icons prefix">lock</i>
     <input type="password" id="password" name="password" required autocomplete="new-password" />
@@ -60,7 +90,7 @@
     <label for="confirm_password">Confirm Password</label>
   </div>
   <p style="font-size:0.8rem;color:#757575;margin:-0.5rem 0 1rem 0">
-    Password must be at least 8 characters and contain a number or special character.
+    At least 8 characters with a number or special character.
   </p>
 
   <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-large" style="width:100%">
@@ -70,7 +100,7 @@
 </form>
 
 <div style="margin-top:1rem;text-align:center">
-  <a href="/login" style="font-size:0.85rem;color:#9e9e9e">Already have an account? Sign in</a>
+  <a href="/login" style="font-size:0.85rem;color:#9e9e9e">Already have an account? Sign in first, then open this link again.</a>
 </div>
 {% endif %}
 {% endblock %}

@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from auth import require_kid
 from database import get_db
-from models import BudgetEntry, KidProfile, Receipt, ShoppingEvent
+from models import BudgetEntry, KidEventBudget, KidProfile, Receipt, ShoppingEvent
 from templates_config import templates
 
 router = APIRouter(prefix="/kid")
@@ -67,6 +67,20 @@ async def dashboard(request: Request, event_id: int = 0, db: Session = Depends(g
     total_budgeted = sum(e.budgeted_amount for e in entries)
     total_spent = sum(e.spent_amount for e in entries)
 
+    # Overall budget set by parent (e.g. $450 total shopping money)
+    kid_event_budget = None
+    if event:
+        kid_event_budget = db.query(KidEventBudget).filter(
+            KidEventBudget.kid_id == kid.id,
+            KidEventBudget.event_id == event.id,
+        ).first()
+
+    # Over-budget categories for the modal
+    over_budget = [
+        e for e in entries
+        if e.budgeted_amount > 0 and e.spent_amount > e.budgeted_amount
+    ]
+
     advice = request.query_params.get("advice", "")
 
     ctx.update({
@@ -76,6 +90,8 @@ async def dashboard(request: Request, event_id: int = 0, db: Session = Depends(g
         "entries": entries,
         "total_budgeted": total_budgeted,
         "total_spent": total_spent,
+        "kid_event_budget": kid_event_budget,
+        "over_budget": over_budget,
         "advice": advice,
         "active": "dashboard",
     })

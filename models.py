@@ -137,6 +137,20 @@ class ReceiptLineItem(Base):
     category = relationship("EventCategory", back_populates="receipt_items")
 
 
+class KidEventBudget(Base):
+    """Stores the total budget a parent gives a kid for a shopping event."""
+    __tablename__ = "kid_event_budgets"
+
+    id          = Column(Integer, primary_key=True, index=True)
+    kid_id      = Column(Integer, ForeignKey("kid_profiles.id"), nullable=False)
+    event_id    = Column(Integer, ForeignKey("shopping_events.id"), nullable=False)
+    total_budget = Column(Float, default=0.0)
+    family_id   = Column(Integer, ForeignKey("families.id"), nullable=True)
+
+    kid   = relationship("KidProfile")
+    event = relationship("ShoppingEvent")
+
+
 class Invitation(Base):
     __tablename__ = "invitations"
 

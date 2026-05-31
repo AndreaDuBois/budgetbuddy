@@ -52,7 +52,7 @@ async def _migrate():
             conn.execute(text("INSERT INTO families (created_at) VALUES (datetime('now'))"))
             conn.commit()
             fam_id = conn.execute(text("SELECT last_insert_rowid()")).fetchone()[0]
-            for tbl in ("users", "kid_profiles", "shopping_events"):
+            for tbl in ("users", "kid_profiles", "shopping_events", "kid_event_budgets"):
                 conn.execute(
                     text(f"UPDATE {tbl} SET family_id = :fid WHERE family_id IS NULL"),
                     {"fid": fam_id},
