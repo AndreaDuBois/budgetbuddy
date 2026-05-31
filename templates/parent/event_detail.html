@@ -1,0 +1,163 @@
+{% extends "base_app.html" %}
+{% block title %}{{ event.name }} — BudgetBuddy{% endblock %}
+
+{% block content %}
+{% if msg == 'budgets_saved' %}
+<div class="card-panel green lighten-4 green-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">check_circle</i>Budgets saved!
+</div>
+{% elif msg == 'category_added' %}
+<div class="card-panel green lighten-4 green-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">check_circle</i>Category added.
+</div>
+{% endif %}
+
+<div class="page-header">
+  <div>
+    <h5 style="margin-bottom:0.25rem">{{ event.name }}</h5>
+    {% if event.is_active %}
+      <span class="chip green white-text" style="font-size:0.72rem;height:22px;line-height:22px">Active</span>
+    {% else %}
+      <span class="chip grey lighten-2 grey-text text-darken-2" style="font-size:0.72rem;height:22px;line-height:22px">Inactive</span>
+    {% endif %}
+  </div>
+  <a href="/parent/events/{{ event.id }}/budgets" class="btn waves-effect waves-light indigo darken-1 btn-small">
+    <i class="material-icons left">attach_money</i>Set Budgets
+  </a>
+</div>
+
+{% if event.description %}
+<p class="grey-text text-darken-1" style="font-size:0.9rem;margin-bottom:1rem">{{ event.description }}</p>
+{% endif %}
+
+<!-- Edit event settings collapsible -->
+<ul class="collapsible" style="margin-bottom:1rem">
+  <li>
+    <div class="collapsible-header" style="font-size:0.875rem">
+      <i class="material-icons">settings</i>Edit Event Settings
+    </div>
+    <div class="collapsible-body" style="padding:1rem">
+      <form method="post" action="/parent/events/{{ event.id }}/edit">
+        <div class="input-field">
+          <input type="text" id="name" name="name" value="{{ event.name }}" required />
+          <label for="name" class="active">Event Name</label>
+        </div>
+        <div class="input-field">
+          <textarea id="description" name="description" class="materialize-textarea">{{ event.description or '' }}</textarea>
+          <label for="description" {% if event.description %}class="active"{% endif %}>Description</label>
+        </div>
+        <p style="margin:0 0 1rem">
+          <label>
+            <input type="checkbox" name="is_active" value="true"
+                   {% if event.is_active %}checked{% endif %} />
+            <span>Event is active</span>
+          </label>
+        </p>
+        <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-small">Save</button>
+      </form>
+    </div>
+  </li>
+</ul>
+
+<!-- Categories header -->
+<div class="page-header" style="margin-bottom:0.5rem">
+  <div class="section-heading" style="margin:0">Categories</div>
+  {% if kids %}
+  <span class="grey-text" style="font-size:0.8rem">{{ kids|length }} member{{ 's' if kids|length != 1 }}</span>
+  {% endif %}
+</div>
+
+{% if not event.categories %}
+<div class="card">
+  <div class="card-content center-align">
+    <p class="grey-text">No categories yet. Add your first one below.</p>
+  </div>
+</div>
+{% else %}
+<div class="card" style="margin-bottom:1rem">
+  <div class="card-content" style="padding:0.5rem 1rem">
+    {% for cat in event.categories %}
+    <div style="padding:0.75rem 0;{% if not loop.last %}border-bottom:1px solid #f5f5f5{% endif %}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem">
+        <div>
+          <div style="font-weight:500">{{ cat.name }}</div>
+          {% if cat.qty_needed %}<div class="grey-text text-darken-1" style="font-size:0.8rem">Qty needed: {{ cat.qty_needed }}</div>{% endif %}
+          {% if cat.notes %}<div class="grey-text text-darken-1" style="font-size:0.8rem">{{ cat.notes }}</div>{% endif %}
+        </div>
+        <div style="display:flex;gap:0.25rem;flex-shrink:0">
+          <a class="btn-flat waves-effect btn-small indigo-text" style="padding:0 0.5rem"
+             onclick="toggleEdit('edit-{{ cat.id }}')">Edit</a>
+          {% if not cat.receipt_items %}
+          <form method="post" action="/parent/events/{{ event.id }}/categories/{{ cat.id }}/delete"
+                onsubmit="return confirm('Delete {{ cat.name }}?')">
+            <button type="submit" class="btn-flat waves-effect btn-small red-text" style="padding:0 0.5rem">Delete</button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+
+      <div id="edit-{{ cat.id }}" style="display:none;margin-top:0.75rem">
+        <form method="post" action="/parent/events/{{ event.id }}/categories/{{ cat.id }}/edit">
+          <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem">
+            <div class="input-field" style="flex:1;min-width:140px;margin:0">
+              <input type="text" name="name" value="{{ cat.name }}" required
+                     style="margin:0;border-bottom:1px solid #9e9e9e;height:2rem;font-size:0.875rem" />
+            </div>
+            <div class="input-field" style="width:110px;margin:0">
+              <input type="text" name="qty_needed" value="{{ cat.qty_needed or '' }}" placeholder="Qty (e.g. 3-5)"
+                     style="margin:0;border-bottom:1px solid #9e9e9e;height:2rem;font-size:0.875rem" />
+            </div>
+          </div>
+          <div class="input-field" style="margin:0 0 0.5rem">
+            <input type="text" name="notes" value="{{ cat.notes or '' }}" placeholder="Notes (optional)"
+                   style="margin:0;border-bottom:1px solid #9e9e9e;height:2rem;font-size:0.875rem" />
+          </div>
+          <div style="display:flex;gap:0.5rem">
+            <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-small">Save</button>
+            <a class="btn-flat waves-effect btn-small grey-text text-darken-2"
+               onclick="toggleEdit('edit-{{ cat.id }}')">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Add category -->
+<div class="card">
+  <div class="card-content">
+    <span class="card-title" style="font-size:1rem">Add Category</span>
+    <form method="post" action="/parent/events/{{ event.id }}/categories/add">
+      <div style="display:flex;gap:0.75rem;flex-wrap:wrap">
+        <div class="input-field" style="flex:1;min-width:140px">
+          <input type="text" id="cat_name" name="name" required />
+          <label for="cat_name">Name (e.g. Shirts)</label>
+        </div>
+        <div class="input-field" style="width:120px">
+          <input type="text" id="qty" name="qty_needed" />
+          <label for="qty">Qty needed</label>
+        </div>
+      </div>
+      <div class="input-field">
+        <input type="text" id="cat_notes" name="notes" />
+        <label for="cat_notes">Notes (optional)</label>
+      </div>
+      <button type="submit" class="btn waves-effect waves-light indigo darken-1">
+        <i class="material-icons left">add</i>Add Category
+      </button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleEdit(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

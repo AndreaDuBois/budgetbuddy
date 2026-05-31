@@ -1,0 +1,43 @@
+{% extends "base_app.html" %}
+{% block title %}Upload Receipt — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>
+    {% if method == 'image' %}Take Photo / Upload Image
+    {% elif method == 'paste' %}Paste Receipt Text
+    {% elif method == 'pdf' %}Upload PDF
+    {% endif %}
+  </h5>
+  <a href="/kid/upload{% if event %}?event_id={{ event.id }}{% endif %}" class="btn-flat waves-effect indigo-text">
+    <i class="material-icons left">arrow_back</i>Back
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">
+      {% if method == 'image' %}photo_camera
+      {% elif method == 'paste' %}content_paste
+      {% elif method == 'pdf' %}picture_as_pdf
+      {% endif %}
+    </i>
+
+    <div class="card-panel blue lighten-5 blue-text text-darken-2" style="border-radius:6px;padding:0.75rem 1rem;margin:1rem 0 1.5rem;text-align:left">
+      <strong>Coming soon!</strong>
+      {% if method == 'image' %}
+      AI-powered photo receipt scanning is being set up. For now, please use "Type It In" to add your items manually.
+      {% elif method == 'paste' %}
+      AI receipt text parsing is being set up. For now, please use "Type It In" to add your items manually.
+      {% elif method == 'pdf' %}
+      PDF receipt upload is being set up. For now, please use "Type It In" to add your items manually.
+      {% endif %}
+    </div>
+
+    <a href="/receipts/upload/manual{% if event %}?event_id={{ event.id }}{% endif %}"
+       class="btn waves-effect waves-light indigo darken-1">
+      <i class="material-icons left">edit</i>Type It In Instead
+    </a>
+  </div>
+</div>
+{% endblock %}

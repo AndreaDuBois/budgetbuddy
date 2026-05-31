@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}BudgetBuddy{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link rel="manifest" href="/static/manifest.json" />
+  <meta name="theme-color" content="#3949ab" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="BudgetBuddy" />
+  <link rel="apple-touch-icon" href="/static/images/icons/icon-192.png" />
+</head>
+<body>
+
+<nav class="indigo darken-1 z-depth-2">
+  <div class="nav-wrapper" style="padding:0 1rem">
+    <a href="/" class="brand-logo" style="font-size:1.15rem;display:flex;align-items:center;gap:6px">
+      <i class="material-icons" style="font-size:1.3rem">account_balance_wallet</i>
+      BudgetBuddy
+    </a>
+    <ul class="right">
+      {% if current_user %}
+      <li>
+        <a href="/accounts/profile" style="font-size:0.85rem;padding:0 0.75rem">
+          {{ current_user.display_name }}
+        </a>
+      </li>
+      {% endif %}
+      <li>
+        <a href="/logout" title="Sign out" style="padding:0 0.75rem">
+          <i class="material-icons">logout</i>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<div class="app-content">
+  {% block flash %}{% endblock %}
+  {% block content %}{% endblock %}
+</div>
+
+{% if role == "parent" %}
+<nav class="bottom-nav">
+  <a href="/parent/dashboard" {% if active == 'dashboard' %}class="active"{% endif %}>
+    <i class="material-icons">home</i>
+    Home
+  </a>
+  <a href="/parent/kids" {% if active == 'kids' %}class="active"{% endif %}>
+    <i class="material-icons">people</i>
+    Members
+  </a>
+  <a href="/parent/events" {% if active == 'events' %}class="active"{% endif %}>
+    <i class="material-icons">shopping_bag</i>
+    Events
+  </a>
+  <a href="/parent/receipts" {% if active == 'receipts' %}class="active"{% endif %}>
+    <i class="material-icons">receipt</i>
+    Receipts
+  </a>
+</nav>
+{% else %}
+<nav class="bottom-nav">
+  <a href="/kid/dashboard" {% if active == 'dashboard' %}class="active"{% endif %}>
+    <i class="material-icons">home</i>
+    Home
+  </a>
+  <a href="/kid/upload" {% if active == 'upload' %}class="active"{% endif %}>
+    <i class="material-icons">add_circle</i>
+    Add Receipt
+  </a>
+  <a href="/kid/receipts" {% if active == 'receipts' %}class="active"{% endif %}>
+    <i class="material-icons">history</i>
+    History
+  </a>
+</nav>
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    M.FormSelect.init(document.querySelectorAll('select'));
+    M.Collapsible.init(document.querySelectorAll('.collapsible'));
+  });
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/static/js/sw.js');
+  }
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

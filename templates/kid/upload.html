@@ -1,0 +1,66 @@
+{% extends "base_app.html" %}
+{% block title %}Add Receipt — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Add Receipt</h5>
+</div>
+
+{% if not event %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">shopping_bag</i>
+    <p class="grey-text">No active shopping event. Ask your parent to set one up first.</p>
+  </div>
+</div>
+{% else %}
+
+{% if all_events | length > 1 %}
+<div class="input-field">
+  <select id="event_sel" onchange="updateLinks(this.value)">
+    {% for ev in all_events %}
+    <option value="{{ ev.id }}" {% if event and ev.id == event.id %}selected{% endif %}>{{ ev.name }}</option>
+    {% endfor %}
+  </select>
+  <label>Shopping Event</label>
+</div>
+{% endif %}
+
+<p class="grey-text text-darken-1" style="font-size:0.9rem;margin-bottom:1rem">
+  Adding receipt to <strong>{{ event.name }}</strong>. How do you want to add it?
+</p>
+
+<div class="upload-grid" id="upload-grid">
+  <a href="/receipts/upload/image?event_id={{ event.id }}" class="upload-card" data-base="/receipts/upload/image">
+    <i class="material-icons">photo_camera</i>
+    Take Photo / Upload Image
+  </a>
+
+  <a href="/receipts/upload/pdf?event_id={{ event.id }}" class="upload-card" data-base="/receipts/upload/pdf">
+    <i class="material-icons">picture_as_pdf</i>
+    Upload PDF
+  </a>
+
+  <a href="/receipts/upload/paste?event_id={{ event.id }}" class="upload-card" data-base="/receipts/upload/paste">
+    <i class="material-icons">content_paste</i>
+    Paste Receipt Text
+  </a>
+
+  <a href="/receipts/upload/manual?event_id={{ event.id }}" class="upload-card" data-base="/receipts/upload/manual">
+    <i class="material-icons">edit</i>
+    Type It In
+  </a>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateLinks(eventId) {
+  document.querySelectorAll('#upload-grid a[data-base]').forEach(a => {
+    a.href = a.dataset.base + '?event_id=' + eventId;
+  });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends "base_app.html" %}
+{% block title %}Review Receipt — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Review Items</h5>
+</div>
+
+<p class="grey-text text-darken-1" style="font-size:0.875rem;margin-bottom:1rem">
+  Assign each item to a budget category. Items marked "Not in budget" won't count against your spending.
+</p>
+
+<form method="post" action="/receipts/{{ receipt.id }}/review">
+
+  {% if needs_attention %}
+  <div class="review-section-label" style="color:#ff9800">
+    <i class="material-icons" style="font-size:0.9rem;vertical-align:middle;margin-right:4px">warning</i>
+    Needs your attention
+  </div>
+  <div class="card" style="overflow:hidden;margin-bottom:1rem">
+    <div style="overflow-x:auto">
+      <table class="highlight" style="min-width:320px">
+        <thead>
+          <tr class="amber lighten-5">
+            <th style="font-size:0.78rem">Item</th>
+            <th style="font-size:0.78rem;width:80px;text-align:right">Price</th>
+            <th style="font-size:0.78rem;width:160px">Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in needs_attention %}
+          <tr class="review-row-attention">
+            <td>
+              <div style="font-weight:500">{{ item.description }}</div>
+              {% if item.quantity > 1 %}<div class="grey-text" style="font-size:0.75rem">Qty: {{ item.quantity }}</div>{% endif %}
+            </td>
+            <td style="text-align:right;font-weight:600">${{ "%.2f"|format(item.total_price) }}</td>
+            <td>
+              <select name="category_{{ item.id }}" required
+                      style="display:block;width:100%;border:1px solid #e0e0e0;border-radius:4px;padding:0.3rem 0.4rem;font-size:0.85rem;background:#fff">
+                <option value="none" {% if not item.category_id %}selected{% endif %}>Not in budget</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if item.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if ready %}
+  <div class="review-section-label" style="color:#4caf50">
+    <i class="material-icons" style="font-size:0.9rem;vertical-align:middle;margin-right:4px">check_circle</i>
+    Ready to confirm
+  </div>
+  <div class="card" style="overflow:hidden;margin-bottom:1rem">
+    <div style="overflow-x:auto">
+      <table class="highlight" style="min-width:320px">
+        <thead>
+          <tr class="green lighten-5">
+            <th style="font-size:0.78rem">Item</th>
+            <th style="font-size:0.78rem;width:80px;text-align:right">Price</th>
+            <th style="font-size:0.78rem;width:160px">Category</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in ready %}
+          <tr>
+            <td>
+              <div style="font-weight:500">{{ item.description }}</div>
+              {% if item.quantity > 1 %}<div class="grey-text" style="font-size:0.75rem">Qty: {{ item.quantity }}</div>{% endif %}
+            </td>
+            <td style="text-align:right;font-weight:600">${{ "%.2f"|format(item.total_price) }}</td>
+            <td>
+              <select name="category_{{ item.id }}"
+                      style="display:block;width:100%;border:1px solid #e0e0e0;border-radius:4px;padding:0.3rem 0.4rem;font-size:0.85rem;background:#fff">
+                <option value="none" {% if not item.category_id %}selected{% endif %}>Not in budget</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if item.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not needs_attention and not ready %}
+  <div class="card">
+    <div class="card-content center-align">
+      <p class="grey-text">No items on this receipt.</p>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if receipt.total_amount %}
+  <div style="text-align:right;font-size:0.9rem;color:#757575;margin-bottom:1rem">
+    Receipt total: <strong>${{ "%.2f"|format(receipt.total_amount) }}</strong>
+  </div>
+  {% endif %}
+
+  <div style="display:flex;gap:0.75rem">
+    <button type="submit" class="btn waves-effect waves-light green darken-1">
+      <i class="material-icons left">check</i>Confirm All &amp; Update Budget
+    </button>
+    <a href="{% if role == 'parent' %}/parent/receipts{% else %}/kid/receipts{% endif %}"
+       class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
+  </div>
+</form>
+{% endblock %}

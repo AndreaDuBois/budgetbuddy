@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Database (local dev only; prod DB lives on Fly volume)
+*.db
+*.sqlite3
+
+# User uploads
+uploads/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp

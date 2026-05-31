@@ -1,0 +1,45 @@
+{% extends "base_app.html" %}
+{% block title %}My Receipts — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>My Receipts</h5>
+  <a href="/kid/upload" class="btn waves-effect waves-light indigo darken-1 btn-small">
+    <i class="material-icons left">add</i>Add Receipt
+  </a>
+</div>
+
+{% if not receipts %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">receipt</i>
+    <p class="grey-text">No receipts yet. Add one when you buy something!</p>
+    <a href="/kid/upload" class="btn waves-effect waves-light indigo darken-1" style="margin-top:1rem">
+      <i class="material-icons left">add</i>Add Receipt
+    </a>
+  </div>
+</div>
+{% else %}
+<ul class="collection">
+  {% for receipt in receipts %}
+  <li class="collection-item" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1rem">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:500;font-size:0.95rem">{{ receipt.store_name or 'Receipt' }}</div>
+      <div class="grey-text text-darken-1" style="font-size:0.8rem">
+        {% if receipt.total_amount %}${{ "%.2f"|format(receipt.total_amount) }} · {% endif %}
+        {{ receipt.created_at.strftime('%b %d, %Y') }}
+      </div>
+    </div>
+    {% if receipt.status == 'confirmed' %}
+      <span class="chip green white-text" style="font-size:0.72rem;height:22px;line-height:22px;margin:0">Done</span>
+    {% else %}
+      <span class="chip orange white-text" style="font-size:0.72rem;height:22px;line-height:22px;margin:0">Review needed</span>
+    {% endif %}
+    <a href="/kid/receipts/{{ receipt.id }}" class="grey-text">
+      <i class="material-icons" style="font-size:1.2rem">chevron_right</i>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base_app.html" %}
+{% block title %}Upload PDF Receipt — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Upload PDF Receipt</h5>
+  <a href="/kid/upload{% if event %}?event_id={{ event.id }}{% endif %}" class="btn-flat waves-effect indigo-text">
+    <i class="material-icons left">arrow_back</i>Back
+  </a>
+</div>
+
+{% if error %}
+<div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">error</i>{{ error }}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-content">
+    <form method="post" action="/receipts/upload/pdf" enctype="multipart/form-data">
+
+      <div class="input-field">
+        <select id="event_id" name="event_id" required>
+          {% for ev in all_events %}
+          <option value="{{ ev.id }}" {% if event and ev.id == event.id %}selected{% endif %}>{{ ev.name }}</option>
+          {% endfor %}
+        </select>
+        <label>Shopping Event</label>
+      </div>
+
+      {% if role == 'parent' and kids %}
+      <div class="input-field">
+        <select id="kid_id" name="kid_id" required>
+          <option value="" disabled selected>— Select a member —</option>
+          {% for kid in kids %}
+          <option value="{{ kid.id }}">{{ kid.name }}</option>
+          {% endfor %}
+        </select>
+        <label>For which member?</label>
+      </div>
+      {% endif %}
+
+      <div style="margin-bottom:1rem">
+        <div class="section-heading">PDF Receipt</div>
+        <input type="file" id="pdf_file" name="pdf_file" required
+               accept=".pdf,application/pdf"
+               style="margin-top:0.5rem" />
+        <p class="grey-text" style="font-size:0.78rem;margin:0.25rem 0 0">
+          PDF only · Max 10 MB · Works best with digital or emailed receipts
+        </p>
+      </div>
+
+      <div class="card-panel blue lighten-5 blue-text text-darken-2" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+        <i class="material-icons left" style="font-size:1.1rem">auto_awesome</i>
+        AI will extract the text from your PDF and automatically match items to your budget categories. You'll review everything before it's saved.
+      </div>
+
+      <div style="display:flex;gap:0.75rem">
+        <button type="submit" class="btn waves-effect waves-light indigo darken-1" id="submit-btn">
+          <i class="material-icons left">upload_file</i>Parse &amp; Review
+        </button>
+        <a href="/kid/upload" class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.querySelector('form').addEventListener('submit', function() {
+  const btn = document.getElementById('submit-btn');
+  btn.innerHTML = '<i class="material-icons left">hourglass_top</i>Reading PDF…';
+  btn.disabled = true;
+});
+</script>
+{% endblock %}

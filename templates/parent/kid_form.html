@@ -1,0 +1,83 @@
+{% extends "base_app.html" %}
+{% block title %}{% if edit_mode %}Edit Member{% else %}Add Member{% endif %} — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>{% if edit_mode %}Edit {{ kid.name }}{% else %}Add Member{% endif %}</h5>
+</div>
+
+{% if error %}
+<div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">error</i>{{ error }}
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-content">
+    <form method="post"
+          action="{% if edit_mode %}/parent/kids/{{ kid.id }}/edit{% else %}/parent/kids/new{% endif %}">
+
+      <div class="input-field">
+        <input type="text" id="display_name" name="display_name" required autocomplete="name"
+               value="{{ (form.display_name if form else (kid.name if kid else '')) }}" />
+        <label for="display_name" {% if (form and form.display_name) or (kid and kid.name) %}class="active"{% endif %}>
+          Name
+        </label>
+      </div>
+
+      <div class="input-field">
+        <input type="email" id="email" name="email" required inputmode="email"
+               value="{{ (form.email if form else (kid_user.email if kid_user else '')) }}" />
+        <label for="email" {% if (form and form.email) or kid_user %}class="active"{% endif %}>
+          Login Email
+        </label>
+      </div>
+
+      <div class="input-field">
+        <input type="password" id="password" name="password"
+               {% if not edit_mode %}required{% endif %}
+               autocomplete="new-password" />
+        <label for="password">
+          Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
+        </label>
+      </div>
+
+      <div class="section-heading" style="margin-top:1.25rem">Avatar Color</div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.5rem 0 1.25rem">
+        {% set current_color = (form.avatar_color if form else (kid.avatar_color if kid else '#6366f1')) %}
+        {% for color in avatar_colors %}
+        <span class="color-swatch {% if color == current_color %}selected{% endif %}"
+              style="background:{{ color }}"
+              onclick="selectColor('{{ color }}', this)"></span>
+        {% endfor %}
+        <input type="hidden" name="avatar_color" id="avatar_color_input" value="{{ current_color }}" />
+      </div>
+
+      <p style="margin:0 0 1rem">
+        <label>
+          <input type="checkbox" name="can_adjust_budgets" value="true"
+                 {% if kid and kid.can_adjust_budgets %}checked{% endif %} />
+          <span>Allow this member to adjust their own category budgets</span>
+        </label>
+      </p>
+
+      <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+        <button type="submit" class="btn waves-effect waves-light indigo darken-1">
+          {% if edit_mode %}Save Changes{% else %}Add Member{% endif %}
+        </button>
+        <a href="/parent/kids" class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function selectColor(color, el) {
+  document.getElementById('avatar_color_input').value = color;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+{% endblock %}

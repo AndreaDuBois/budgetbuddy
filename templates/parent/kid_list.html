@@ -1,0 +1,40 @@
+{% extends "base_app.html" %}
+{% block title %}Members — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Members</h5>
+  <a href="/parent/kids/new" class="btn waves-effect waves-light indigo darken-1 btn-small">
+    <i class="material-icons left">person_add</i>Add Member
+  </a>
+</div>
+
+{% if not kids %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">people</i>
+    <p class="grey-text">No members added yet.</p>
+    <a href="/parent/kids/new" class="btn waves-effect waves-light indigo darken-1" style="margin-top:1rem">
+      <i class="material-icons left">person_add</i>Add First Member
+    </a>
+  </div>
+</div>
+{% else %}
+<ul class="collection">
+  {% for kid in kids %}
+  <li class="collection-item avatar">
+    <div class="member-avatar" style="background:{{ kid.avatar_color }};position:absolute;left:1rem;top:50%;transform:translateY(-50%)">
+      {{ kid.name[0] | upper }}
+    </div>
+    <span class="title" style="font-weight:500">{{ kid.name }}</span>
+    <p style="margin:0;font-size:0.82rem;color:#757575">
+      {% if kid.can_adjust_budgets %}Can adjust budgets{% else %}View only{% endif %}
+    </p>
+    <a href="/parent/kids/{{ kid.id }}" class="secondary-content">
+      <i class="material-icons grey-text">chevron_right</i>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

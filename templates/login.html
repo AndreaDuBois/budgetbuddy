@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Sign In — BudgetBuddy{% endblock %}
+{% block subtitle %}Sign in to your account{% endblock %}
+
+{% block content %}
+{% if request.query_params.get('setup') %}
+<div class="card-panel green lighten-4 green-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">check_circle</i>Account created! Sign in below.
+</div>
+{% endif %}
+
+{% if error %}
+<div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">error</i>{{ error }}
+</div>
+{% endif %}
+
+<form method="post" action="/login">
+  <div class="input-field">
+    <i class="material-icons prefix">email</i>
+    <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" />
+    <label for="email">Email</label>
+  </div>
+  <div class="input-field">
+    <i class="material-icons prefix">lock</i>
+    <input type="password" id="password" name="password" required autocomplete="current-password" />
+    <label for="password">Password</label>
+  </div>
+  <div style="margin-bottom:0.75rem;text-align:right">
+    <a href="/forgot-password" style="font-size:0.85rem;color:#3f51b5">Forgot password?</a>
+  </div>
+  <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-large" style="width:100%">
+    Sign In
+    <i class="material-icons right">login</i>
+  </button>
+</form>
+
+<div style="margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid #e0e0e0">
+  <p style="font-size:0.8rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#9e9e9e;margin-bottom:0.75rem">
+    Install as an App on Your Phone
+  </p>
+  <ul class="install-steps">
+    <li>
+      <span class="step-num">1</span>
+      <span><strong>Android (Chrome):</strong> tap the menu (⋮) then "Add to Home screen"</span>
+    </li>
+    <li>
+      <span class="step-num">2</span>
+      <span><strong>iPhone (Safari):</strong> tap the Share button (↑) then "Add to Home Screen"</span>
+    </li>
+    <li>
+      <span class="step-num">3</span>
+      <span>Open the BudgetBuddy icon — it works just like a real app!</span>
+    </li>
+  </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,326 @@
+/* BudgetBuddy – custom layer on top of Materialize CSS */
+
+/* ── Typography & base ── */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #f5f5f5;
+}
+
+/* ── Auth pages ── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem 1rem;
+  background: linear-gradient(135deg, #3949ab 0%, #5c6bc0 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  border-radius: 8px !important;
+}
+
+.auth-logo {
+  text-align: center;
+  padding: 2rem 1.5rem 0;
+}
+
+.auth-logo h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #3f51b5;
+  margin: 0 0 0.25rem;
+}
+
+.auth-logo p {
+  color: #757575;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── App shell ── */
+.app-content {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 5rem;
+}
+
+/* ── Bottom nav ── */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  z-index: 999;
+  box-shadow: 0 -2px 4px rgba(0,0,0,.06);
+}
+
+.bottom-nav a {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.25rem;
+  text-decoration: none;
+  color: #9e9e9e;
+  font-size: 0.65rem;
+  font-weight: 500;
+  gap: 2px;
+  line-height: 1;
+  height: 56px;
+  transition: color .15s;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.bottom-nav a.active,
+.bottom-nav a:hover {
+  color: #3f51b5;
+}
+
+.bottom-nav a .material-icons {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ── Budget bars ── */
+.budget-item {
+  margin-bottom: 1.25rem;
+}
+
+.budget-item:last-child { margin-bottom: 0; }
+
+.budget-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.3rem;
+}
+
+.budget-label .category-name {
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #212121;
+}
+
+.budget-label .budget-amounts {
+  font-size: 0.78rem;
+  color: #757575;
+}
+
+.budget-bar-track {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.budget-bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: #4caf50;
+  transition: width .3s ease;
+}
+
+.budget-bar-fill.over  { background: #f44336; }
+.budget-bar-fill.near  { background: #ff9800; }
+
+.budget-remaining {
+  margin-top: 0.2rem;
+  font-size: 0.75rem;
+  color: #757575;
+}
+
+.budget-remaining.over  { color: #f44336; font-weight: 500; }
+.budget-remaining.near  { color: #ff9800; font-weight: 500; }
+
+/* ── Kid avatar ── */
+.member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* ── Upload cards ── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.upload-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  padding: 1.75rem 1rem;
+  background: #fff;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #212121;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-align: center;
+  transition: border-color .15s, background .15s, box-shadow .15s;
+  cursor: pointer;
+}
+
+.upload-card:hover, .upload-card:active {
+  border-color: #3f51b5;
+  background: #e8eaf6;
+  color: #3949ab;
+  box-shadow: 0 2px 8px rgba(63,81,181,.15);
+}
+
+.upload-card .material-icons {
+  font-size: 32px;
+  color: #3f51b5;
+}
+
+/* ── Receipt review table ── */
+.review-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9e9e9e;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.review-row-attention {
+  background: #fff8e1 !important;
+  border-left: 3px solid #ff9800;
+}
+
+/* ── Page header row ── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.page-header h5 {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: #212121;
+}
+
+/* ── Section heading ── */
+.section-heading {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9e9e9e;
+  margin: 1.25rem 0 0.5rem;
+}
+
+/* ── Avatar colors ── */
+.color-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: inline-block;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color .15s, transform .1s;
+}
+
+.color-swatch.selected,
+.color-swatch:hover {
+  border-color: #212121;
+  transform: scale(1.15);
+}
+
+/* ── PWA install instructions ── */
+.install-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.install-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+  font-size: 0.875rem;
+  color: #424242;
+}
+
+.install-steps li .step-num {
+  background: #3f51b5;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+@media (max-width: 360px) {
+  .upload-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Materialize overrides ── */
+.card { border-radius: 8px !important; }
+
+.btn, .btn-large, .btn-small {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.3px !important;
+}
+
+nav { box-shadow: 0 2px 6px rgba(0,0,0,.12); }
+
+.input-field input[type=text]:focus + label,
+.input-field input[type=email]:focus + label,
+.input-field input[type=password]:focus + label,
+.input-field input[type=number]:focus + label,
+.input-field textarea:focus + label {
+  color: #3f51b5 !important;
+}
+
+.input-field input[type=text]:focus,
+.input-field input[type=email]:focus,
+.input-field input[type=password]:focus,
+.input-field input[type=number]:focus,
+.input-field textarea:focus {
+  border-bottom: 1px solid #3f51b5 !important;
+  box-shadow: 0 1px 0 0 #3f51b5 !important;
+}
+
+[type="checkbox"]:checked + span::before {
+  border-right-color: #3f51b5 !important;
+  border-bottom-color: #3f51b5 !important;
+}
+
+.collection .collection-item.active { background: #e8eaf6; color: #3f51b5; }
+
+.progress { border-radius: 99px; }
+.progress .determinate { border-radius: 99px; }
+
+.chip { border-radius: 6px; }

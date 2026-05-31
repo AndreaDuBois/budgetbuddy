@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Create Account — BudgetBuddy{% endblock %}
+{% block subtitle %}Set up BudgetBuddy{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">error</i>{{ error }}
+</div>
+{% endif %}
+
+<form method="post" action="/setup">
+  <div class="input-field">
+    <i class="material-icons prefix">person</i>
+    <input type="text" id="display_name" name="display_name" required autocomplete="name" />
+    <label for="display_name">Your Name</label>
+  </div>
+  <div class="input-field">
+    <i class="material-icons prefix">email</i>
+    <input type="email" id="email" name="email" required autocomplete="email" inputmode="email" />
+    <label for="email">Email</label>
+  </div>
+  <div class="input-field">
+    <i class="material-icons prefix">lock</i>
+    <input type="password" id="password" name="password" required autocomplete="new-password" />
+    <label for="password">Password</label>
+  </div>
+  <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-large" style="width:100%">
+    Create Account
+    <i class="material-icons right">arrow_forward</i>
+  </button>
+</form>
+{% endblock %}

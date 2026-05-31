@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-jose[cryptography]
+bcrypt
+jinja2
+python-multipart
+python-dotenv
+aiofiles
+groq
+pdfplumber
+Pillow

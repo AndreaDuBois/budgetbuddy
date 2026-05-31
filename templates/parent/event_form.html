@@ -1,0 +1,46 @@
+{% extends "base_app.html" %}
+{% block title %}{% if edit_mode %}Edit Event{% else %}New Event{% endif %} — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>{% if edit_mode %}Edit Event{% else %}New Shopping Event{% endif %}</h5>
+</div>
+
+<div class="card">
+  <div class="card-content">
+    <form method="post"
+          action="{% if edit_mode %}/parent/events/{{ event.id }}/edit{% else %}/parent/events/new{% endif %}">
+
+      {% if edit_mode %}
+      <p style="margin:0 0 1rem">
+        <label>
+          <input type="checkbox" name="is_active" value="true"
+                 {% if event.is_active %}checked{% endif %} />
+          <span style="font-weight:500">Event is active</span>
+        </label>
+      </p>
+      {% endif %}
+
+      <div class="input-field">
+        <input type="text" id="name" name="name" required
+               value="{{ event.name if event else '' }}" />
+        <label for="name" {% if event and event.name %}class="active"{% endif %}>Event Name</label>
+      </div>
+
+      <div class="input-field">
+        <textarea id="description" name="description" class="materialize-textarea">{{ event.description if event else '' }}</textarea>
+        <label for="description" {% if event and event.description %}class="active"{% endif %}>
+          Description <span class="grey-text text-darken-1" style="font-weight:400">(optional)</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:0.75rem;margin-top:0.5rem">
+        <button type="submit" class="btn waves-effect waves-light indigo darken-1">
+          {% if edit_mode %}Save Changes{% else %}Create Event{% endif %}
+        </button>
+        <a href="/parent/events" class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base_app.html" %}
+{% block title %}Events — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Shopping Events</h5>
+  <a href="/parent/events/new" class="btn waves-effect waves-light indigo darken-1 btn-small">
+    <i class="material-icons left">add</i>New Event
+  </a>
+</div>
+
+{% if not events %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">shopping_bag</i>
+    <p class="grey-text">No events yet. Create one to start setting budgets.</p>
+    <a href="/parent/events/new" class="btn waves-effect waves-light indigo darken-1" style="margin-top:1rem">
+      <i class="material-icons left">add</i>Create First Event
+    </a>
+  </div>
+</div>
+{% else %}
+<ul class="collection">
+  {% for event in events %}
+  <li class="collection-item" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1rem">
+    <div style="flex:1;min-width:0">
+      <div style="font-weight:500;font-size:0.95rem">{{ event.name }}</div>
+      <div class="grey-text text-darken-1" style="font-size:0.8rem">
+        {{ event.categories | length }} categor{{ 'y' if event.categories|length == 1 else 'ies' }}
+        {% if event.description %} · {{ event.description[:50] }}{% if event.description|length > 50 %}…{% endif %}{% endif %}
+      </div>
+    </div>
+    {% if event.is_active %}
+      <span class="chip green white-text" style="font-size:0.72rem;height:22px;line-height:22px;margin:0">Active</span>
+    {% else %}
+      <span class="chip grey lighten-2 grey-text text-darken-2" style="font-size:0.72rem;height:22px;line-height:22px;margin:0">Inactive</span>
+    {% endif %}
+    <a href="/parent/events/{{ event.id }}" class="grey-text">
+      <i class="material-icons" style="font-size:1.2rem">chevron_right</i>
+    </a>
+  </li>
+  {% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

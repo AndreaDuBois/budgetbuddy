@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Offline — BudgetBuddy{% endblock %}
+{% block subtitle %}No internet connection{% endblock %}
+
+{% block content %}
+<div style="text-align:center;padding:1rem 0">
+  <i class="material-icons" style="font-size:3.5rem;color:#9e9e9e">wifi_off</i>
+  <p style="color:#757575;margin:1rem 0 1.5rem">
+    You're offline. Receipt uploads require an internet connection.
+    Come back when you're connected!
+  </p>
+  <a href="/" class="btn waves-effect waves-light indigo darken-1">
+    <i class="material-icons left">refresh</i>Try Again
+  </a>
+</div>
+{% endblock %}

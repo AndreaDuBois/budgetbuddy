@@ -1,0 +1,147 @@
+{% extends "base_app.html" %}
+{% block title %}My Budget — BudgetBuddy{% endblock %}
+
+{% block content %}
+{% if advice %}
+<div class="card-panel orange lighten-4 orange-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">warning</i>{{ advice }}
+</div>
+{% endif %}
+
+<div class="page-header">
+  <h5>My Budget</h5>
+  <a href="/kid/upload" class="btn waves-effect waves-light indigo darken-1 btn-small">
+    <i class="material-icons left">add</i>Add Receipt
+  </a>
+</div>
+
+{% if all_events | length > 1 %}
+<div style="margin-bottom:1rem;display:flex;gap:0.5rem;flex-wrap:wrap">
+  {% for ev in all_events %}
+  <a href="/kid/dashboard?event_id={{ ev.id }}"
+     class="btn{% if event and ev.id == event.id %} waves-effect waves-light indigo darken-1{% else %}-flat waves-effect indigo-text{% endif %} btn-small">
+    {{ ev.name }}
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% if not event %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">shopping_bag</i>
+    <p class="grey-text">No shopping events are active yet. Ask your parent to set one up!</p>
+  </div>
+</div>
+
+{% elif not entries %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">assignment</i>
+    <p class="grey-text">No budgets set for <strong>{{ event.name }}</strong> yet. Ask your parent to set them up!</p>
+  </div>
+</div>
+
+{% else %}
+
+<div class="grey-text text-darken-2" style="font-size:0.85rem;margin-bottom:0.75rem;font-weight:500">
+  {{ event.name }}
+</div>
+
+<!-- Overall summary -->
+<div class="card" style="margin-bottom:1rem">
+  <div class="card-content" style="padding:1rem">
+    <div class="budget-label">
+      <span class="category-name">Overall Budget</span>
+      <span class="budget-amounts">${{ "%.2f"|format(total_spent) }} spent of ${{ "%.2f"|format(total_budgeted) }}</span>
+    </div>
+    {% if total_budgeted > 0 %}
+      {% set pct = (total_spent / total_budgeted * 100) | round(1) %}
+      {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+      <div class="budget-bar-track" style="height:14px">
+        <div class="budget-bar-fill {% if total_spent > total_budgeted %}over{% elif pct > 80 %}near{% endif %}"
+             style="width:{{ pct }}%"></div>
+      </div>
+      {% if total_spent > total_budgeted %}
+      <div class="budget-remaining over" style="margin-top:0.4rem">
+        ${{ "%.2f"|format(total_spent - total_budgeted) }} over total budget
+      </div>
+      {% else %}
+      <div class="budget-remaining" style="margin-top:0.4rem">
+        ${{ "%.2f"|format(total_budgeted - total_spent) }} remaining overall
+      </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<!-- Per-category bars -->
+<div class="card">
+  <div class="card-content" style="padding:1rem">
+    <div class="section-heading">By Category</div>
+    {% for entry in entries %}
+    <div class="budget-item">
+      <div class="budget-label">
+        <div>
+          <span class="category-name">{{ entry.category.name }}</span>
+          {% if entry.category.qty_needed %}
+          <span class="grey-text" style="font-size:0.75rem;margin-left:0.4rem">Qty: {{ entry.category.qty_needed }}</span>
+          {% endif %}
+        </div>
+        <div style="display:flex;align-items:center;gap:0.5rem">
+          <span class="budget-amounts">${{ "%.2f"|format(entry.spent_amount) }} / ${{ "%.2f"|format(entry.budgeted_amount) }}</span>
+          {% if kid.can_adjust_budgets %}
+          <a class="btn-flat waves-effect indigo-text" style="font-size:0.7rem;padding:0 4px;height:auto;line-height:1.5"
+             onclick="toggleAdjust('adj-{{ entry.id }}')">edit</a>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if entry.budgeted_amount > 0 %}
+        {% set pct = (entry.spent_amount / entry.budgeted_amount * 100) | round(1) %}
+        {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+        <div class="budget-bar-track">
+          <div class="budget-bar-fill {% if entry.spent_amount > entry.budgeted_amount %}over{% elif pct > 80 %}near{% endif %}"
+               style="width:{{ pct }}%"></div>
+        </div>
+        {% if entry.spent_amount > entry.budgeted_amount %}
+        <div class="budget-remaining over">${{ "%.2f"|format(entry.spent_amount - entry.budgeted_amount) }} over — adjust your budget somewhere!</div>
+        {% else %}
+        <div class="budget-remaining">${{ "%.2f"|format(entry.budgeted_amount - entry.spent_amount) }} remaining</div>
+        {% endif %}
+      {% else %}
+        <div class="grey-text" style="font-size:0.78rem">No budget set</div>
+      {% endif %}
+
+      {% if kid.can_adjust_budgets %}
+      <div id="adj-{{ entry.id }}" style="display:none;margin-top:0.625rem">
+        <form method="post" action="/kid/budgets/{{ entry.id }}/adjust"
+              style="display:flex;gap:0.5rem;align-items:center">
+          <div style="position:relative;display:inline-flex;align-items:center">
+            <span style="position:absolute;left:8px;color:#9e9e9e;pointer-events:none">$</span>
+            <input type="number" name="amount" min="0" step="0.01"
+                   value="{{ entry.budgeted_amount | round(2) }}"
+                   style="width:90px;padding:0.35rem 0.35rem 0.35rem 1.4rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.875rem" />
+          </div>
+          <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-small">Save</button>
+          <a class="btn-flat waves-effect btn-small grey-text text-darken-2"
+             onclick="toggleAdjust('adj-{{ entry.id }}')">Cancel</a>
+        </form>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleAdjust(id) {
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+</script>
+{% endblock %}

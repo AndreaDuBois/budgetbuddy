@@ -1,0 +1,89 @@
+{% extends "base_app.html" %}
+{% block title %}Dashboard — BudgetBuddy{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Dashboard</h5>
+</div>
+
+{% if not kids %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">people</i>
+    <p class="grey-text">No members added yet.</p>
+    <a href="/parent/kids/new" class="btn waves-effect waves-light indigo darken-1" style="margin-top:1rem">
+      <i class="material-icons left">person_add</i>Add First Member
+    </a>
+  </div>
+</div>
+{% elif not events %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">shopping_bag</i>
+    <p class="grey-text">No active shopping events yet.</p>
+    <a href="/parent/events/new" class="btn waves-effect waves-light indigo darken-1" style="margin-top:1rem">
+      <i class="material-icons left">add</i>Create First Event
+    </a>
+  </div>
+</div>
+{% else %}
+
+{% for event in events %}
+<div class="card">
+  <div class="card-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <div>
+        <span class="card-title" style="font-size:1.1rem;margin-bottom:0.1rem;display:block">{{ event.name }}</span>
+        {% if event.description %}<span class="grey-text text-darken-1" style="font-size:0.8rem">{{ event.description }}</span>{% endif %}
+      </div>
+      <a href="/parent/events/{{ event.id }}/budgets" class="btn-flat waves-effect indigo-text" style="font-size:0.8rem">
+        Edit Budgets
+      </a>
+    </div>
+
+    {% for kid in kids %}
+    {% set s = summary[event.id][kid.id] %}
+    <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+      <div class="member-avatar" style="background:{{ kid.avatar_color }}">{{ kid.name[0] | upper }}</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;justify-content:space-between;margin-bottom:0.3rem">
+          <span style="font-weight:500;font-size:0.9rem">{{ kid.name }}</span>
+          <span class="grey-text text-darken-1" style="font-size:0.78rem">${{ "%.2f"|format(s.spent) }} / ${{ "%.2f"|format(s.budgeted) }}</span>
+        </div>
+        {% if s.budgeted > 0 %}
+          {% set pct = (s.spent / s.budgeted * 100) | round(1) %}
+          {% if pct > 100 %}{% set pct = 100 %}{% endif %}
+          <div class="budget-bar-track">
+            <div class="budget-bar-fill {% if s.spent > s.budgeted %}over{% elif pct > 80 %}near{% endif %}"
+                 style="width:{{ pct }}%"></div>
+          </div>
+          {% if s.spent > s.budgeted %}
+          <div class="budget-remaining over">${{ "%.2f"|format(s.spent - s.budgeted) }} over budget</div>
+          {% else %}
+          <div class="budget-remaining">${{ "%.2f"|format(s.budgeted - s.spent) }} remaining</div>
+          {% endif %}
+        {% else %}
+          <div class="grey-text" style="font-size:0.78rem">No budget set</div>
+        {% endif %}
+      </div>
+      <a href="/parent/kids/{{ kid.id }}" class="grey-text" style="font-size:0.9rem">
+        <i class="material-icons" style="font-size:1.1rem;vertical-align:middle">chevron_right</i>
+      </a>
+    </div>
+    {% endfor %}
+
+  </div>
+</div>
+{% endfor %}
+
+<div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-top:0.25rem">
+  <a href="/parent/kids" class="btn-flat waves-effect indigo-text">
+    <i class="material-icons left">people</i>Manage Members
+  </a>
+  <a href="/parent/events" class="btn-flat waves-effect indigo-text">
+    <i class="material-icons left">shopping_bag</i>Manage Events
+  </a>
+</div>
+
+{% endif %}
+{% endblock %}
