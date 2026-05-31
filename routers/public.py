@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 
 from fastapi import APIRouter, Depends, Form, Request, Response
@@ -316,6 +317,49 @@ async def profile_post(
     resp = RedirectResponse("/accounts/profile?saved=1", status_code=302)
     resp.set_cookie("access_token", new_token, httponly=True, samesite="lax", max_age=28800)
     return resp
+
+
+@router.get("/data", response_class=HTMLResponse)
+async def admin_data(request: Request, key: str = "", db: Session = Depends(get_db)):
+    admin_key = os.getenv("ADMIN_KEY", "")
+    if not admin_key or key != admin_key:
+        from fastapi.responses import JSONResponse
+        return JSONResponse({"detail": "Forbidden"}, status_code=403)
+
+    from models import BudgetEntry, Family, KidProfile, Receipt, ShoppingEvent
+
+    families = db.query(Family).order_by(Family.id).all()
+    rows = []
+    for fam in families:
+        parents = db.query(User).filter(User.family_id == fam.id, User.role == "parent").all()
+        kids = db.query(KidProfile).filter(KidProfile.family_id == fam.id).all()
+        kid_users = db.query(User).filter(User.family_id == fam.id, User.role == "kid").all()
+        events = db.query(ShoppingEvent).filter(ShoppingEvent.family_id == fam.id).all()
+        receipts = (
+            db.query(Receipt)
+            .join(KidProfile, Receipt.kid_id == KidProfile.id)
+            .filter(KidProfile.family_id == fam.id)
+            .count()
+        )
+        rows.append({
+            "family": fam,
+            "parents": parents,
+            "kids": kids,
+            "kid_users": kid_users,
+            "events": events,
+            "receipt_count": receipts,
+        })
+
+    total_users = db.query(User).count()
+    total_families = db.query(Family).count()
+    total_receipts = db.query(Receipt).count()
+
+    return templates.TemplateResponse(request, "data.html", {
+        "rows": rows,
+        "total_users": total_users,
+        "total_families": total_families,
+        "total_receipts": total_receipts,
+    })
 
 
 @router.get("/about", response_class=HTMLResponse)

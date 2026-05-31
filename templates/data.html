@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Pocket Money</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body { background:#f0f2f5; font-family:'Roboto',sans-serif; }
+    .admin-header { background:#1a237e; color:#fff; padding:1rem 1.5rem; display:flex; align-items:center; gap:0.75rem; }
+    .admin-header h1 { font-size:1.1rem; font-weight:700; margin:0; }
+    .admin-header span { font-size:0.8rem; opacity:0.7; margin-left:auto }
+    .stat-chip { display:inline-block; background:#fff; border-radius:6px; padding:0.75rem 1.25rem; margin:0 0.5rem 0.5rem 0; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+    .stat-chip .num { font-size:1.5rem; font-weight:700; color:#1a237e; }
+    .stat-chip .lbl { font-size:0.75rem; color:#9e9e9e; text-transform:uppercase; letter-spacing:0.4px; }
+    .fam-card { background:#fff; border-radius:8px; margin-bottom:1rem; box-shadow:0 1px 4px rgba(0,0,0,.1); overflow:hidden; }
+    .fam-header { background:#e8eaf6; padding:0.6rem 1rem; display:flex; align-items:center; gap:0.75rem; }
+    .fam-header .fam-id { font-size:0.75rem; font-weight:700; background:#3949ab; color:#fff; border-radius:4px; padding:2px 7px; }
+    .fam-header .fam-date { font-size:0.75rem; color:#9e9e9e; margin-left:auto }
+    .fam-body { padding:0.875rem 1rem; }
+    table.admin-tbl { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    table.admin-tbl th { text-align:left; font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:#9e9e9e; padding:0 0 0.4rem; border-bottom:1px solid #e0e0e0; }
+    table.admin-tbl td { padding:0.4rem 0; border-bottom:1px solid #f5f5f5; vertical-align:middle; }
+    table.admin-tbl tr:last-child td { border-bottom:none; }
+    .role-chip { font-size:0.7rem; padding:1px 7px; border-radius:10px; font-weight:600; }
+    .role-parent { background:#e8eaf6; color:#3949ab; }
+    .role-kid { background:#e8f5e9; color:#2e7d32; }
+    .no-login { font-size:0.75rem; color:#bdbdbd; font-style:italic; }
+    .section-lbl { font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.4px; color:#9e9e9e; margin:0.75rem 0 0.4rem; }
+    .wrap { max-width:900px; margin:0 auto; padding:1.25rem 1rem 3rem; }
+  </style>
+</head>
+<body>
+
+<div class="admin-header">
+  <i class="material-icons">admin_panel_settings</i>
+  <h1>Pocket Money — Admin</h1>
+  <span>{{ total_families }} families · {{ total_users }} users · {{ total_receipts }} receipts</span>
+</div>
+
+<div class="wrap">
+
+  <div style="margin-bottom:1.25rem;padding-top:0.25rem">
+    <div class="stat-chip"><div class="num">{{ total_families }}</div><div class="lbl">Families</div></div>
+    <div class="stat-chip"><div class="num">{{ total_users }}</div><div class="lbl">Total Users</div></div>
+    <div class="stat-chip"><div class="num">{{ total_receipts }}</div><div class="lbl">Receipts</div></div>
+  </div>
+
+  {% if not rows %}
+  <p style="color:#9e9e9e">No families registered yet.</p>
+  {% endif %}
+
+  {% for r in rows %}
+  <div class="fam-card">
+    <div class="fam-header">
+      <span class="fam-id">Family #{{ r.family.id }}</span>
+      <span style="font-size:0.82rem;font-weight:600">
+        {% if r.parents %}{{ r.parents[0].display_name }}{% else %}<em style="color:#9e9e9e">no parent</em>{% endif %}
+        {% if r.parents | length > 1 %}&amp; {{ r.parents | length - 1 }} more{% endif %}
+      </span>
+      <span style="font-size:0.78rem;color:#7986cb">
+        {{ r.kids | length }} kid{{ 's' if r.kids | length != 1 else '' }} ·
+        {{ r.events | length }} event{{ 's' if r.events | length != 1 else '' }} ·
+        {{ r.receipt_count }} receipt{{ 's' if r.receipt_count != 1 else '' }}
+      </span>
+      <span class="fam-date">Joined {{ r.family.created_at.strftime('%b %d, %Y') }}</span>
+    </div>
+
+    <div class="fam-body">
+
+      {# Parents #}
+      {% if r.parents %}
+      <div class="section-lbl">Parents</div>
+      <table class="admin-tbl">
+        <thead><tr><th>Name</th><th>Email</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for u in r.parents %}
+          <tr>
+            <td><strong>{{ u.display_name }}</strong></td>
+            <td style="color:#424242">{{ u.email }}</td>
+            <td style="color:#9e9e9e">{{ u.created_at.strftime('%b %d, %Y') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
+      {# Kids #}
+      {% if r.kids %}
+      <div class="section-lbl" style="margin-top:0.875rem">Kids</div>
+      <table class="admin-tbl">
+        <thead><tr><th>Name</th><th>Login Email</th><th>Added</th></tr></thead>
+        <tbody>
+          {% for kid in r.kids %}
+          {% set ku = r.kid_users | selectattr('kid_profile_id', 'equalto', kid.id) | first | default(None) %}
+          <tr>
+            <td>
+              <span style="display:inline-block;width:22px;height:22px;border-radius:50%;background:{{ kid.avatar_color }};text-align:center;line-height:22px;font-size:0.7rem;color:#fff;font-weight:700;margin-right:6px">{{ kid.name[0]|upper }}</span>
+              <strong>{{ kid.name }}</strong>
+            </td>
+            <td>
+              {% if ku %}
+                <span style="color:#424242">{{ ku.email }}</span>
+              {% else %}
+                <span class="no-login">no login set up</span>
+              {% endif %}
+            </td>
+            <td style="color:#9e9e9e">{{ kid.created_at.strftime('%b %d, %Y') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
+      {# Events #}
+      {% if r.events %}
+      <div class="section-lbl" style="margin-top:0.875rem">Events</div>
+      <table class="admin-tbl">
+        <thead><tr><th>Name</th><th>Status</th><th>Created</th></tr></thead>
+        <tbody>
+          {% for ev in r.events %}
+          <tr>
+            <td><strong>{{ ev.name }}</strong></td>
+            <td>
+              {% if ev.is_active %}
+                <span style="font-size:0.75rem;color:#2e7d32;font-weight:600">Active</span>
+              {% else %}
+                <span style="font-size:0.75rem;color:#9e9e9e">Closed</span>
+              {% endif %}
+            </td>
+            <td style="color:#9e9e9e">{{ ev.created_at.strftime('%b %d, %Y') }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% endif %}
+
+    </div>
+  </div>
+  {% endfor %}
+
+</div>
+</body>
+</html>
