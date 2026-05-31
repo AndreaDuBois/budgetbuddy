@@ -5,6 +5,14 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from database import Base
+import secrets
+
+
+class Family(Base):
+    __tablename__ = "families"
+
+    id         = Column(Integer, primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
 
 class KidProfile(Base):
@@ -15,6 +23,7 @@ class KidProfile(Base):
     avatar_color     = Column(String, default="#6366f1")
     can_adjust_budgets = Column(Boolean, default=False)
     created_at       = Column(DateTime, default=datetime.utcnow)
+    family_id        = Column(Integer, ForeignKey("families.id"), nullable=True)
 
     user             = relationship("User", back_populates="kid_profile", uselist=False)
     budget_entries   = relationship("BudgetEntry", back_populates="kid")
@@ -30,6 +39,7 @@ class User(Base):
     password_hash   = Column(String, nullable=False)
     role            = Column(String, nullable=False)   # "parent" | "kid"
     created_at      = Column(DateTime, default=datetime.utcnow)
+    family_id       = Column(Integer, ForeignKey("families.id"), nullable=True)
 
     kid_profile_id  = Column(Integer, ForeignKey("kid_profiles.id"), nullable=True)
     kid_profile     = relationship("KidProfile", back_populates="user", foreign_keys=[kid_profile_id])
@@ -44,6 +54,7 @@ class ShoppingEvent(Base):
     description = Column(Text, nullable=True)
     is_active   = Column(Boolean, default=True)
     created_at  = Column(DateTime, default=datetime.utcnow)
+    family_id   = Column(Integer, ForeignKey("families.id"), nullable=True)
 
     categories    = relationship("EventCategory", back_populates="event",
                                  cascade="all, delete-orphan", order_by="EventCategory.sort_order")
@@ -124,3 +135,20 @@ class ReceiptLineItem(Base):
 
     receipt  = relationship("Receipt", back_populates="line_items")
     category = relationship("EventCategory", back_populates="receipt_items")
+
+
+class Invitation(Base):
+    __tablename__ = "invitations"
+
+    id                  = Column(Integer, primary_key=True, index=True)
+    token               = Column(String, unique=True, nullable=False, index=True)
+    email               = Column(String, nullable=True)   # pre-filled for recipient
+    role                = Column(String, nullable=False)  # "parent" | "kid"
+    kid_profile_id      = Column(Integer, ForeignKey("kid_profiles.id"), nullable=True)
+    created_by_user_id  = Column(Integer, ForeignKey("users.id"), nullable=False)
+    expires_at          = Column(DateTime, nullable=False)
+    used_at             = Column(DateTime, nullable=True)
+    created_at          = Column(DateTime, default=datetime.utcnow)
+
+    kid_profile         = relationship("KidProfile")
+    family_id           = Column(Integer, ForeignKey("families.id"), nullable=True)

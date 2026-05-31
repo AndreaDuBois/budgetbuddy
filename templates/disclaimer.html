@@ -1,0 +1,57 @@
+{% extends "base_info.html" %}
+{% block title %}Disclaimer — Pocket Money{% endblock %}
+
+{% block content %}
+<h2 style="margin-top:0">Disclaimer</h2>
+<p style="font-size:0.8rem;color:#9e9e9e">Last updated: May 2025</p>
+
+<h2>AI Receipt Scanning</h2>
+<p>
+  Pocket Money uses an AI service (Groq) to automatically read and interpret receipt images and documents.
+  This technology is helpful but <strong>not guaranteed to be accurate</strong>. The AI may:
+</p>
+<ul>
+  <li>Misread handwritten or low-quality receipts</li>
+  <li>Miss line items or combine them incorrectly</li>
+  <li>Assign items to the wrong budget category</li>
+  <li>Occasionally produce incorrect prices or totals</li>
+</ul>
+<p>
+  <strong>Always review the AI's output on the confirmation screen before approving.</strong>
+  Nothing updates your budget until you explicitly confirm each receipt.
+</p>
+
+<h2>Not Financial Advice</h2>
+<p>
+  Pocket Money is a personal budgeting and record-keeping tool. It does not provide financial advice,
+  tax guidance, or investment recommendations. Budget amounts and spending limits are set entirely by
+  the family using the app.
+</p>
+
+<h2>Data Storage &amp; Privacy</h2>
+<p>
+  All data entered into Pocket Money — including names, email addresses, budget amounts, and receipt
+  images — is stored locally on the server or device where the app is running. Pocket Money does not
+  operate a central cloud database or sell any user data.
+</p>
+<p>
+  Receipt content (images, PDF text, pasted text) is sent to Groq's API for processing. Please review
+  <a href="https://groq.com/privacy-policy" target="_blank" rel="noopener" style="color:#3f51b5">Groq's Privacy Policy</a>
+  for details on how they handle submitted content. Avoid uploading receipts containing sensitive personal
+  information beyond standard purchase details.
+</p>
+
+<h2>No Warranty</h2>
+<p>
+  Pocket Money is provided as-is, without warranty of any kind. The creators are not liable for any
+  inaccuracies in budget tracking, data loss, or decisions made based on information displayed in the app.
+  Always keep your own records of purchases and receipts.
+</p>
+
+<h2>Account Security</h2>
+<p>
+  You are responsible for keeping your login credentials secure. Use a strong, unique password.
+  If you share a device with your children, sign out after each session. Pocket Money cannot recover
+  a lost password without a parent manually resetting it.
+</p>
+{% endblock %}

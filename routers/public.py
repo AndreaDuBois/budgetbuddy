@@ -1,13 +1,15 @@
+from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, Form, Request, Response
 from fastapi.responses import HTMLResponse, RedirectResponse
 from sqlalchemy.orm import Session
 
 from auth import (
     create_access_token, hash_password, require_authenticated,
-    require_parent, verify_password
+    validate_password, verify_password
 )
 from database import get_db
-from models import KidProfile, User
+from models import Family, Invitation, KidProfile, User
 from templates_config import templates
 
 router = APIRouter()
@@ -50,6 +52,7 @@ async def login_post(
         "role": user.role,
         "email": user.email,
         "display_name": user.display_name,
+        "family_id": str(user.family_id or 0),
     }
     if user.role == "kid" and user.kid_profile_id:
         token_data["kid_id"] = str(user.kid_profile_id)
@@ -69,9 +72,10 @@ async def logout():
 
 
 @router.get("/setup", response_class=HTMLResponse)
-async def setup_page(request: Request, db: Session = Depends(get_db)):
-    if db.query(User).filter(User.role == "parent").first():
-        return RedirectResponse("/login", status_code=302)
+async def setup_page(request: Request):
+    user = require_authenticated(request)
+    if user:
+        return RedirectResponse("/", status_code=302)
     return templates.TemplateResponse(request, "setup.html", {})
 
 
@@ -81,25 +85,118 @@ async def setup_post(
     display_name: str = Form(...),
     email: str = Form(...),
     password: str = Form(...),
+    confirm_password: str = Form(...),
     db: Session = Depends(get_db),
 ):
-    if db.query(User).filter(User.role == "parent").first():
-        return RedirectResponse("/login", status_code=302)
+    form_vals = {"display_name": display_name, "email": email}
 
+    pw_error = validate_password(password)
+    if pw_error:
+        return templates.TemplateResponse(request, "setup.html", {"error": pw_error, "form": form_vals})
+    if password != confirm_password:
+        return templates.TemplateResponse(request, "setup.html", {"error": "Passwords do not match.", "form": form_vals})
     if db.query(User).filter(User.email == email.lower().strip()).first():
-        return templates.TemplateResponse(
-            request, "setup.html", {"error": "That email is already registered"}
-        )
+        return templates.TemplateResponse(request, "setup.html", {"error": "That email is already registered.", "form": form_vals})
+
+    family = Family()
+    db.add(family)
+    db.flush()
 
     user = User(
         display_name=display_name.strip(),
         email=email.lower().strip(),
         password_hash=hash_password(password),
         role="parent",
+        family_id=family.id,
     )
     db.add(user)
     db.commit()
     return RedirectResponse("/login?setup=1", status_code=302)
+
+
+# ── Invite join flow ──────────────────────────────────────────────────────────
+
+@router.get("/join/{token}", response_class=HTMLResponse)
+async def join_page(request: Request, token: str, db: Session = Depends(get_db)):
+    invite = db.query(Invitation).filter(Invitation.token == token).first()
+    if not invite or invite.used_at or invite.expires_at < datetime.utcnow():
+        return templates.TemplateResponse(request, "join.html", {"invalid": True})
+
+    kid_name = invite.kid_profile.name if invite.kid_profile else None
+    return templates.TemplateResponse(request, "join.html", {
+        "token": token,
+        "role": invite.role,
+        "email": invite.email or "",
+        "kid_name": kid_name,
+    })
+
+
+@router.post("/join/{token}", response_class=HTMLResponse)
+async def join_post(
+    request: Request,
+    token: str,
+    display_name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...),
+    confirm_password: str = Form(...),
+    db: Session = Depends(get_db),
+):
+    invite = db.query(Invitation).filter(Invitation.token == token).first()
+    if not invite or invite.used_at or invite.expires_at < datetime.utcnow():
+        return templates.TemplateResponse(request, "join.html", {"invalid": True})
+
+    kid_name = invite.kid_profile.name if invite.kid_profile else None
+    form_vals = {"display_name": display_name, "email": email}
+    ctx_base = {"token": token, "role": invite.role, "email": invite.email or "", "kid_name": kid_name, "form": form_vals}
+
+    pw_error = validate_password(password)
+    if pw_error:
+        return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": pw_error})
+    if password != confirm_password:
+        return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "Passwords do not match."})
+
+    email_clean = email.lower().strip()
+
+    if invite.role == "kid":
+        kid_user = db.query(User).filter(User.kid_profile_id == invite.kid_profile_id).first()
+        if not kid_user:
+            return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "Kid account not found. Ask a parent to re-create the invite."})
+        conflict = db.query(User).filter(User.email == email_clean, User.id != kid_user.id).first()
+        if conflict:
+            return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "That email is already in use."})
+        kid_user.email = email_clean
+        kid_user.display_name = display_name.strip()
+        kid_user.password_hash = hash_password(password)
+    else:
+        if db.query(User).filter(User.email == email_clean).first():
+            return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "An account with that email already exists."})
+        new_user = User(
+            display_name=display_name.strip(),
+            email=email_clean,
+            password_hash=hash_password(password),
+            role="parent",
+            family_id=invite.family_id,
+        )
+        db.add(new_user)
+
+    invite.used_at = datetime.utcnow()
+    db.commit()
+    return RedirectResponse("/login?joined=1", status_code=302)
+
+
+@router.get("/about", response_class=HTMLResponse)
+async def about_page(request: Request):
+    return templates.TemplateResponse(request, "about.html", {})
+
+
+@router.get("/faq", response_class=HTMLResponse)
+async def faq_page(request: Request):
+    return templates.TemplateResponse(request, "faq.html", {})
+
+
+@router.get("/disclaimer", response_class=HTMLResponse)
+async def disclaimer_page(request: Request):
+    return templates.TemplateResponse(request, "disclaimer.html", {})
 
 
 @router.get("/offline", response_class=HTMLResponse)

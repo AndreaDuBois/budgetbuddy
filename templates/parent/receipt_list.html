@@ -1,10 +1,10 @@
-﻿{% extends "base_app.html" %}
-{% block title %}Receipts â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}Receipts — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <h5>All Receipts</h5>
-  <a href="/receipts/upload/manual" class="btn waves-effect waves-light indigo darken-1 btn-small">
+  <a href="/receipts/upload" class="btn waves-effect waves-light indigo darken-1 btn-small">
     <i class="material-icons left">add</i>Add Receipt
   </a>
 </div>
@@ -22,12 +22,12 @@
   <li class="collection-item" style="display:flex;align-items:center;gap:0.75rem;padding:0.875rem 1rem">
     <div style="flex:1;min-width:0">
       <div style="font-weight:500;font-size:0.95rem">
-        {{ receipt.kid.name }} Â· {{ receipt.store_name or 'Unknown store' }}
+        {{ receipt.kid.name }} · {{ receipt.store_name or 'Unknown store' }}
       </div>
       <div class="grey-text text-darken-1" style="font-size:0.8rem">
         {{ receipt.upload_method | capitalize }}
-        {% if receipt.total_amount %} Â· ${{ "%.2f"|format(receipt.total_amount) }}{% endif %}
-        Â· {{ receipt.created_at.strftime('%b %d, %Y') }}
+        {% if receipt.total_amount %} · ${{ "%.2f"|format(receipt.total_amount) }}{% endif %}
+        · {{ receipt.created_at.strftime('%b %d, %Y') }}
       </div>
     </div>
     {% if receipt.status == 'confirmed' %}

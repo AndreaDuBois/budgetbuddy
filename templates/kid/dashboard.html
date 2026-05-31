@@ -1,5 +1,5 @@
-﻿{% extends "base_app.html" %}
-{% block title %}My Budget â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}My Budget — Pocket Money{% endblock %}
 
 {% block content %}
 {% if advice %}
@@ -105,7 +105,7 @@
                style="width:{{ pct }}%"></div>
         </div>
         {% if entry.spent_amount > entry.budgeted_amount %}
-        <div class="budget-remaining over">${{ "%.2f"|format(entry.spent_amount - entry.budgeted_amount) }} over â€” adjust your budget somewhere!</div>
+        <div class="budget-remaining over">${{ "%.2f"|format(entry.spent_amount - entry.budgeted_amount) }} over — adjust your budget somewhere!</div>
         {% else %}
         <div class="budget-remaining">${{ "%.2f"|format(entry.budgeted_amount - entry.spent_amount) }} remaining</div>
         {% endif %}

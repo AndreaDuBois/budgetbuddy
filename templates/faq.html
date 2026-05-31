@@ -1,0 +1,61 @@
+{% extends "base_info.html" %}
+{% block title %}FAQ — Pocket Money{% endblock %}
+
+{% block content %}
+<h2 style="margin-top:0">Frequently Asked Questions</h2>
+
+<h2>Getting Started</h2>
+
+<p><strong>How do I set up Pocket Money for the first time?</strong></p>
+<p>Go to the Sign In page and click <em>Create Account</em>. You'll become the primary parent. From there, go to <em>Events</em> to create your first shopping event, then <em>Members</em> to add your kids.</p>
+
+<p><strong>How do I add my kids?</strong></p>
+<p>Go to <strong>Members → Add Member</strong>. Enter your child's name and a login email. You can set a password for them, or use <em>Send Invite Link</em> on their profile page so they can set their own password.</p>
+
+<p><strong>How do I add another parent or guardian?</strong></p>
+<p>From the Dashboard, tap <em>Invite Co-Parent</em>. A shareable link is generated — copy it and send it to them however you like (text, email, etc.). They click the link and create their own login. Co-parents have the same full access as you.</p>
+
+<h2>Shopping Events &amp; Budgets</h2>
+
+<p><strong>What is a Shopping Event?</strong></p>
+<p>An event is a named shopping trip — like "Back to School 2025" or "Holiday Gifts." Inside each event you create <em>categories</em> (Shoes, Shirts, Backpack, etc.) and set a dollar budget per category for each child.</p>
+
+<p><strong>Can I have more than one event at a time?</strong></p>
+<p>Yes. Multiple events can be active at the same time. Each kid sees budgets for all active events.</p>
+
+<p><strong>What happens when a budget is overspent?</strong></p>
+<p>The progress bar turns red and the app shows how much over budget the category is. You'll also see a budget advice notice. Nothing is blocked — it's informational so you can decide how to handle it.</p>
+
+<p><strong>Can kids adjust their own budgets?</strong></p>
+<p>Only if you allow it. On each child's profile, there's a toggle: <em>Allow this member to adjust their own category budgets</em>. By default it's off.</p>
+
+<h2>Receipts &amp; AI Scanning</h2>
+
+<p><strong>How does receipt scanning work?</strong></p>
+<p>When a kid (or parent) uploads a receipt photo or PDF, the AI reads it and pulls out each line item along with prices. It then suggests which budget category each item belongs to. You review and confirm before any totals are updated.</p>
+
+<p><strong>What are the four ways to upload a receipt?</strong></p>
+<ul>
+  <li><strong>Photo</strong> — snap or upload an image of the receipt</li>
+  <li><strong>PDF</strong> — upload a digital receipt saved as a PDF</li>
+  <li><strong>Paste text</strong> — copy the text from an email receipt and paste it in</li>
+  <li><strong>Manual entry</strong> — type items and prices in yourself (no AI needed)</li>
+</ul>
+
+<p><strong>The AI got something wrong on my receipt. What do I do?</strong></p>
+<p>On the review screen you can edit each line item — change the description, price, or category — before confirming. Nothing is final until you tap <em>Confirm</em>.</p>
+
+<p><strong>Can parents upload receipts on behalf of a child?</strong></p>
+<p>Yes. From the parent receipt view, you can upload a receipt and assign it to any child in any active event.</p>
+
+<h2>Accounts &amp; Privacy</h2>
+
+<p><strong>Can kids see each other's budgets?</strong></p>
+<p>No. Each child's login only shows their own budgets and receipts. Only parents can see everything.</p>
+
+<p><strong>What if a kid forgets their password?</strong></p>
+<p>A parent can go to <strong>Members → [child's name] → Edit</strong> and set a new password, or generate a new invite link so the child can choose their own.</p>
+
+<p><strong>Where is my data stored?</strong></p>
+<p>All data is stored locally on the device or server where Pocket Money is running. Nothing is sent to any third-party service except receipt images/text, which are temporarily sent to the AI for reading.</p>
+{% endblock %}

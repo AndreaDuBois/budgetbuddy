@@ -1,5 +1,5 @@
-﻿{% extends "base_app.html" %}
-{% block title %}{% if edit_mode %}Edit Member{% else %}Add Member{% endif %} â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}{% if edit_mode %}Edit Member{% else %}Add Member{% endif %} — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -41,6 +41,17 @@
           Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
         </label>
       </div>
+      <div class="input-field">
+        <input type="password" id="confirm_password" name="confirm_password"
+               {% if not edit_mode %}required{% endif %}
+               autocomplete="new-password" />
+        <label for="confirm_password">
+          Confirm Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
+        </label>
+      </div>
+      <p style="font-size:0.8rem;color:#757575;margin:-0.5rem 0 1rem 0">
+        Password must be at least 8 characters and contain a number or special character.
+      </p>
 
       <div class="section-heading" style="margin-top:1.25rem">Avatar Color</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.5rem 0 1.25rem">

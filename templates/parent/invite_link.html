@@ -1,0 +1,70 @@
+{% extends "base_app.html" %}
+{% block title %}Invite Link — Pocket Money{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Invite Link</h5>
+  <a href="{% if invite.role == 'kid' %}/parent/kids/{{ invite.kid_profile_id }}{% else %}/parent/dashboard{% endif %}"
+     class="btn-flat waves-effect grey-text text-darken-2">
+    <i class="material-icons left">arrow_back</i>Back
+  </a>
+</div>
+
+<div class="card">
+  <div class="card-content">
+    {% if invite.role == "kid" %}
+    <p style="margin-bottom:1rem">
+      Share this link with <strong>{{ kid_name }}</strong> so they can set their own password and sign in.
+    </p>
+    {% else %}
+    <p style="margin-bottom:1rem">
+      Share this link with the person you want to add as a co-parent.
+      {% if invite.email %}The form will be pre-filled with <strong>{{ invite.email }}</strong>.{% endif %}
+    </p>
+    {% endif %}
+
+    <div style="background:#f5f5f5;border-radius:6px;padding:0.875rem 1rem;word-break:break-all;font-family:monospace;font-size:0.85rem;margin-bottom:1rem">
+      {{ join_url }}
+    </div>
+
+    <button onclick="copyLink()" class="btn waves-effect waves-light indigo darken-1" id="copy-btn">
+      <i class="material-icons left">content_copy</i>Copy Link
+    </button>
+
+    <p style="font-size:0.8rem;color:#9e9e9e;margin-top:1rem">
+      This link expires in 7 days and can only be used once.
+    </p>
+  </div>
+</div>
+
+{% if invite.role == "parent" %}
+<div class="card">
+  <div class="card-content">
+    <p class="card-title" style="font-size:0.95rem;margin-bottom:0.5rem">Send another invite</p>
+    <form method="post" action="/parent/invite/parent" style="display:flex;gap:0.75rem;align-items:flex-end">
+      <div class="input-field" style="flex:1;margin:0">
+        <input type="email" id="email2" name="email" inputmode="email" autocomplete="email" />
+        <label for="email2">Their email (optional)</label>
+      </div>
+      <button type="submit" class="btn waves-effect waves-light indigo darken-1" style="margin-bottom:0.5rem">
+        New Link
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+function copyLink() {
+  navigator.clipboard.writeText('{{ join_url }}').then(function() {
+    var btn = document.getElementById('copy-btn');
+    btn.innerHTML = '<i class="material-icons left">check</i>Copied!';
+    setTimeout(function() {
+      btn.innerHTML = '<i class="material-icons left">content_copy</i>Copy Link';
+    }, 2500);
+  });
+}
+</script>
+{% endblock %}

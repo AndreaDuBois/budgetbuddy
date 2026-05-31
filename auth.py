@@ -6,6 +6,16 @@ from fastapi import Request
 import os
 
 SECRET_KEY = os.getenv("SECRET_KEY", "changeme-please")
+
+
+def validate_password(password: str) -> str | None:
+    if len(password) < 8:
+        return "Password must be at least 8 characters."
+    if all(c.isalpha() for c in password):
+        return "Password must contain at least one number or special character."
+    return None
+
+
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_HOURS = 8
 

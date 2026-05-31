@@ -1,9 +1,14 @@
-﻿{% extends "base_app.html" %}
-{% block title %}Dashboard â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}Dashboard — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <h5>Dashboard</h5>
+  <form method="post" action="/parent/invite/parent" style="margin:0">
+    <button type="submit" class="btn-flat waves-effect indigo-text" style="font-size:0.82rem;padding:0 0.5rem">
+      <i class="material-icons left" style="font-size:1rem">person_add</i>Invite Co-Parent
+    </button>
+  </form>
 </div>
 
 {% if not kids %}

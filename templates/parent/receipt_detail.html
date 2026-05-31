@@ -1,5 +1,5 @@
-﻿{% extends "base_app.html" %}
-{% block title %}Receipt â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}Receipt — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -49,7 +49,7 @@
           <td>{{ item.quantity }}</td>
           <td>${{ "%.2f"|format(item.total_price) }}</td>
           <td>
-            {% if item.category %}{{ item.category.name }}{% else %}<span class="grey-text">â€”</span>{% endif %}
+            {% if item.category %}{{ item.category.name }}{% else %}<span class="grey-text">—</span>{% endif %}
           </td>
         </tr>
         {% endfor %}

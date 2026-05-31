@@ -1,0 +1,110 @@
+{% extends "base_app.html" %}
+{% block title %}Add Receipt — Pocket Money{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h5>Add Receipt</h5>
+  {% if role == 'parent' %}
+  <a href="/parent/receipts" class="btn-flat waves-effect indigo-text">
+    <i class="material-icons left">arrow_back</i>Back
+  </a>
+  {% endif %}
+</div>
+
+{% if not event %}
+<div class="card">
+  <div class="card-content center-align">
+    <i class="material-icons large grey-text text-lighten-1">shopping_bag</i>
+    <p class="grey-text">No active shopping event.{% if role == 'parent' %} <a href="/parent/events/new" class="indigo-text">Create one</a>.{% else %} Ask your parent to set one up first.{% endif %}</p>
+  </div>
+</div>
+{% else %}
+
+{% if all_events | length > 1 %}
+<div class="input-field">
+  <select id="event_sel" onchange="updateLinks(this.value)">
+    {% for ev in all_events %}
+    <option value="{{ ev.id }}" {% if event and ev.id == event.id %}selected{% endif %}>{{ ev.name }}</option>
+    {% endfor %}
+  </select>
+  <label>Shopping Event</label>
+</div>
+{% endif %}
+
+{% if role == 'parent' and kids %}
+<div class="input-field">
+  <select id="kid_sel" onchange="updateKid(this.value)">
+    <option value="0" disabled selected>— Select a member —</option>
+    {% for kid in kids %}
+    <option value="{{ kid.id }}">{{ kid.name }}</option>
+    {% endfor %}
+  </select>
+  <label>Upload receipt for…</label>
+</div>
+<p id="kid-required-msg" class="red-text" style="font-size:0.82rem;display:none;margin:-0.5rem 0 0.75rem">
+  Please select a member first.
+</p>
+{% endif %}
+
+<p class="grey-text text-darken-1" style="font-size:0.9rem;margin-bottom:1rem">
+  {% if role == 'parent' %}Choose how to add the receipt:{% else %}Adding to <strong>{{ event.name }}</strong>. How do you want to add it?{% endif %}
+</p>
+
+<div class="upload-grid" id="upload-grid">
+  <a href="#" class="upload-card" data-base="/receipts/upload/image"
+     onclick="return goUpload(this)">
+    <i class="material-icons">photo_camera</i>
+    Take Photo / Upload Image
+  </a>
+  <a href="#" class="upload-card" data-base="/receipts/upload/pdf"
+     onclick="return goUpload(this)">
+    <i class="material-icons">picture_as_pdf</i>
+    Upload PDF
+  </a>
+  <a href="#" class="upload-card" data-base="/receipts/upload/paste"
+     onclick="return goUpload(this)">
+    <i class="material-icons">content_paste</i>
+    Paste Receipt Text
+  </a>
+  <a href="#" class="upload-card" data-base="/receipts/upload/manual"
+     onclick="return goUpload(this)">
+    <i class="material-icons">edit</i>
+    Type It In
+  </a>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+var currentEventId = {{ event.id if event else 0 }};
+var currentKidId   = 0;
+var isParent       = {{ 'true' if role == 'parent' else 'false' }};
+
+function updateLinks(eventId) {
+  currentEventId = eventId;
+}
+
+function updateKid(kidId) {
+  currentKidId = kidId;
+  document.getElementById('kid-required-msg').style.display = 'none';
+}
+
+function goUpload(el) {
+  if (isParent && currentKidId == 0) {
+    document.getElementById('kid-required-msg').style.display = 'block';
+    document.getElementById('kid_sel').focus();
+    return false;
+  }
+  var url = el.dataset.base + '?event_id=' + currentEventId;
+  if (isParent) url += '&kid_id=' + currentKidId;
+  window.location.href = url;
+  return false;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  M.FormSelect.init(document.querySelectorAll('select'));
+});
+</script>
+{% endblock %}

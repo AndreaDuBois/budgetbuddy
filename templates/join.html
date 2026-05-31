@@ -1,27 +1,54 @@
 {% extends "base.html" %}
-{% block title %}Create Account — Pocket Money{% endblock %}
-{% block subtitle %}Set up your family account{% endblock %}
+{% block title %}Join — Pocket Money{% endblock %}
+{% block subtitle %}
+  {% if invalid %}Invalid or expired invite{% elif role == "kid" %}Set your password{% else %}Create your account{% endif %}
+{% endblock %}
 
 {% block content %}
+{% if invalid %}
+<div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
+  <i class="material-icons left" style="font-size:1.1rem">error</i>
+  This invite link is invalid or has already been used. Ask a parent to send a new one.
+</div>
+<a href="/login" class="btn-flat waves-effect indigo-text">Back to Sign In</a>
+
+{% else %}
+
+{% if kid_name %}
+<p style="font-size:0.9rem;color:#616161;margin-bottom:1rem">
+  You're setting up the login for <strong>{{ kid_name }}</strong>.
+</p>
+{% else %}
+<p style="font-size:0.9rem;color:#616161;margin-bottom:1rem">
+  You've been invited to join as a co-parent. Fill in your details below.
+</p>
+{% endif %}
+
 {% if error %}
 <div class="card-panel red lighten-4 red-text text-darken-3" style="border-radius:6px;padding:0.75rem 1rem;margin-bottom:1rem">
   <i class="material-icons left" style="font-size:1.1rem">error</i>{{ error }}
 </div>
 {% endif %}
 
-<form method="post" action="/setup">
+<form method="post" action="/join/{{ token }}">
+  {% if not kid_name %}
   <div class="input-field">
     <i class="material-icons prefix">person</i>
     <input type="text" id="display_name" name="display_name" required autocomplete="name"
            value="{{ form.display_name if form else '' }}" />
     <label for="display_name" {% if form and form.display_name %}class="active"{% endif %}>Your Name</label>
   </div>
+  {% else %}
+  <input type="hidden" name="display_name" value="{{ kid_name }}" />
+  {% endif %}
+
   <div class="input-field">
     <i class="material-icons prefix">email</i>
     <input type="email" id="email" name="email" required autocomplete="email" inputmode="email"
-           value="{{ form.email if form else '' }}" />
-    <label for="email" {% if form and form.email %}class="active"{% endif %}>Email</label>
+           value="{{ (form.email if form else email) }}" />
+    <label for="email" class="active">Email</label>
   </div>
+
   <div class="input-field">
     <i class="material-icons prefix">lock</i>
     <input type="password" id="password" name="password" required autocomplete="new-password" />
@@ -33,10 +60,11 @@
     <label for="confirm_password">Confirm Password</label>
   </div>
   <p style="font-size:0.8rem;color:#757575;margin:-0.5rem 0 1rem 0">
-    At least 8 characters with a number or special character.
+    Password must be at least 8 characters and contain a number or special character.
   </p>
+
   <button type="submit" class="btn waves-effect waves-light indigo darken-1 btn-large" style="width:100%">
-    Create Account
+    {% if kid_name %}Set Password{% else %}Create Account{% endif %}
     <i class="material-icons right">arrow_forward</i>
   </button>
 </form>
@@ -44,4 +72,5 @@
 <div style="margin-top:1rem;text-align:center">
   <a href="/login" style="font-size:0.85rem;color:#9e9e9e">Already have an account? Sign in</a>
 </div>
+{% endif %}
 {% endblock %}

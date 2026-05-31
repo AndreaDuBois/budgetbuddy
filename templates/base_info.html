@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Pocket Money{% endblock %}</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    .info-page { min-height:100vh; background:linear-gradient(135deg,#3949ab 0%,#5c6bc0 100%); padding:2rem 1rem 3rem; }
+    .info-wrap { max-width:680px; margin:0 auto; }
+    .info-card { background:#fff; border-radius:8px; padding:2rem 2rem 2.5rem; box-shadow:0 4px 20px rgba(0,0,0,.18); }
+    .info-back { display:inline-flex; align-items:center; gap:4px; color:#fff; font-size:0.88rem; margin-bottom:1.25rem; opacity:.9; }
+    .info-back:hover { opacity:1; color:#fff; }
+    .info-logo { display:flex; align-items:center; gap:8px; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:2px solid #ede7f6; }
+    .info-logo span { font-size:1.4rem; font-weight:700; color:#3f51b5; }
+    .info-card h2 { font-size:1.35rem; font-weight:700; color:#283593; margin:1.5rem 0 0.6rem; }
+    .info-card h2:first-of-type { margin-top:0; }
+    .info-card p, .info-card li { font-size:0.92rem; color:#424242; line-height:1.65; }
+    .info-card ul { padding-left:1.25rem; margin:0.4rem 0 1rem; }
+    .info-card li { list-style:disc; margin-bottom:0.3rem; }
+    .info-footer { text-align:center; margin-top:1.25rem; }
+    .info-footer a { font-size:0.82rem; color:rgba(255,255,255,.75); margin:0 0.5rem; }
+    .info-footer a:hover { color:#fff; }
+    .step-card { background:#f3f4fd; border-left:3px solid #5c6bc0; border-radius:4px; padding:0.75rem 1rem; margin:0.5rem 0 1rem; }
+    .step-card p { margin:0; }
+  </style>
+</head>
+<body>
+  <div class="info-page">
+    <div class="info-wrap">
+      <a href="/login" class="info-back">
+        <i class="material-icons" style="font-size:1rem">arrow_back</i> Back to Sign In
+      </a>
+      <div class="info-card">
+        <div class="info-logo">
+          <i class="material-icons" style="font-size:1.8rem;color:#3f51b5">account_balance_wallet</i>
+          <span>Pocket Money</span>
+        </div>
+        {% block content %}{% endblock %}
+      </div>
+      <div class="info-footer">
+        <a href="/about">How It Works</a>
+        <a href="/faq">FAQ</a>
+        <a href="/disclaimer">Disclaimer</a>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>

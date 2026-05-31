@@ -1,10 +1,10 @@
-﻿{% extends "base_app.html" %}
-{% block title %}Paste Receipt â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}Paste Receipt — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
   <h5>Paste Receipt Text</h5>
-  <a href="/kid/upload{% if event %}?event_id={{ event.id }}{% endif %}" class="btn-flat waves-effect indigo-text">
+  <a href="{% if role == 'parent' %}/receipts/upload{% else %}/kid/upload{% endif %}{% if event %}?event_id={{ event.id }}{% endif %}" class="btn-flat waves-effect indigo-text">
     <i class="material-icons left">arrow_back</i>Back
   </a>
 </div>
@@ -25,7 +25,7 @@
       {% if role == 'parent' and kids %}
       <div class="input-field">
         <select id="kid_id" name="kid_id" required>
-          <option value="" disabled selected>â€” Select a member â€”</option>
+          <option value="" disabled selected>— Select a member —</option>
           {% for kid in kids %}
           <option value="{{ kid.id }}">{{ kid.name }}</option>
           {% endfor %}
@@ -62,7 +62,7 @@ Total                     $119.88"></textarea>
         <button type="submit" class="btn waves-effect waves-light indigo darken-1">
           <i class="material-icons left">psychology</i>Parse &amp; Review
         </button>
-        <a href="/kid/upload" class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
+        <a href="{% if role == 'parent' %}/receipts/upload{% else %}/kid/upload{% endif %}" class="btn-flat waves-effect grey-text text-darken-2">Cancel</a>
       </div>
     </form>
   </div>

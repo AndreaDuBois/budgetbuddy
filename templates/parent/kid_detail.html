@@ -1,5 +1,5 @@
-﻿{% extends "base_app.html" %}
-{% block title %}{{ kid.name }} â€” Pocket Money{% endblock %}
+{% extends "base_app.html" %}
+{% block title %}{{ kid.name }} — Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -15,14 +15,21 @@
 </div>
 
 {% if kid_user %}
-<p class="grey-text text-darken-1" style="font-size:0.85rem;margin-bottom:1rem">
-  Login: {{ kid_user.email }}&nbsp;&nbsp;
-  {% if kid.can_adjust_budgets %}
-    <span class="chip indigo white-text" style="font-size:0.75rem;height:22px;line-height:22px">Can adjust budgets</span>
-  {% else %}
-    <span class="chip grey lighten-2 grey-text text-darken-2" style="font-size:0.75rem;height:22px;line-height:22px">View only</span>
-  {% endif %}
-</p>
+<div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem">
+  <p class="grey-text text-darken-1" style="font-size:0.85rem;margin:0">
+    Login: {{ kid_user.email }}&nbsp;&nbsp;
+    {% if kid.can_adjust_budgets %}
+      <span class="chip indigo white-text" style="font-size:0.75rem;height:22px;line-height:22px">Can adjust budgets</span>
+    {% else %}
+      <span class="chip grey lighten-2 grey-text text-darken-2" style="font-size:0.75rem;height:22px;line-height:22px">View only</span>
+    {% endif %}
+  </p>
+  <form method="post" action="/parent/invite/kid/{{ kid.id }}" style="margin:0">
+    <button type="submit" class="btn-flat waves-effect indigo-text" style="font-size:0.82rem;padding:0 0.5rem;height:28px;line-height:28px">
+      <i class="material-icons left" style="font-size:1rem;line-height:28px">link</i>Send Invite Link
+    </button>
+  </form>
+</div>
 {% endif %}
 
 {% if not events %}
