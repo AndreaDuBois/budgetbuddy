@@ -90,9 +90,9 @@ async def kid_new_page(request: Request):
 async def kid_new_post(
     request: Request,
     display_name: str = Form(...),
-    email: str = Form(...),
-    password: str = Form(...),
-    confirm_password: str = Form(...),
+    email: str = Form(""),
+    password: str = Form(""),
+    confirm_password: str = Form(""),
     avatar_color: str = Form("#6366f1"),
     can_adjust_budgets: bool = Form(False),
     db: Session = Depends(get_db),
@@ -109,13 +109,18 @@ async def kid_new_post(
         })
         return templates.TemplateResponse(request, "parent/kid_form.html", ctx)
 
-    pw_error = validate_password(password)
-    if pw_error:
-        return _err(pw_error)
-    if password != confirm_password:
-        return _err("Passwords do not match.")
-    if db.query(User).filter(User.email == email.lower().strip()).first():
-        return _err("That email is already in use.")
+    email_clean = email.lower().strip()
+
+    if email_clean:
+        if db.query(User).filter(User.email == email_clean).first():
+            return _err("That email is already in use.")
+        if not password:
+            return _err("A password is required when adding a login email.")
+        pw_error = validate_password(password)
+        if pw_error:
+            return _err(pw_error)
+        if password != confirm_password:
+            return _err("Passwords do not match.")
 
     fid = _fid(user)
     kid_profile = KidProfile(
@@ -127,15 +132,17 @@ async def kid_new_post(
     db.add(kid_profile)
     db.flush()
 
-    kid_user = User(
-        display_name=display_name.strip(),
-        email=email.lower().strip(),
-        password_hash=hash_password(password),
-        role="kid",
-        kid_profile_id=kid_profile.id,
-        family_id=fid,
-    )
-    db.add(kid_user)
+    if email_clean:
+        kid_user = User(
+            display_name=display_name.strip(),
+            email=email_clean,
+            password_hash=hash_password(password),
+            role="kid",
+            kid_profile_id=kid_profile.id,
+            family_id=fid,
+        )
+        db.add(kid_user)
+
     db.commit()
     return RedirectResponse("/parent/kids", status_code=302)
 
@@ -225,6 +232,17 @@ async def kid_edit_post(
         })
         return templates.TemplateResponse(request, "parent/kid_form.html", ctx)
 
+    email_clean = email.lower().strip()
+
+    if email_clean:
+        conflicting = (
+            db.query(User)
+            .filter(User.email == email_clean, User.id != (kid_user.id if kid_user else -1))
+            .first()
+        )
+        if conflicting:
+            return _err("That email is already in use.")
+
     if password:
         pw_error = validate_password(password)
         if pw_error:
@@ -232,23 +250,34 @@ async def kid_edit_post(
         if password != confirm_password:
             return _err("Passwords do not match.")
 
-    conflicting = (
-        db.query(User)
-        .filter(User.email == email.lower().strip(), User.id != (kid_user.id if kid_user else -1))
-        .first()
-    )
-    if conflicting:
-        return _err("That email is already in use.")
-
     kid.name = display_name.strip()
     kid.avatar_color = avatar_color
     kid.can_adjust_budgets = can_adjust_budgets
 
     if kid_user:
         kid_user.display_name = display_name.strip()
-        kid_user.email = email.lower().strip()
+        if email_clean:
+            kid_user.email = email_clean
         if password:
             kid_user.password_hash = hash_password(password)
+    elif email_clean:
+        # Kid had no login before — create one now
+        if not password:
+            return _err("A password is required when adding a login email.")
+        pw_error = validate_password(password)
+        if pw_error:
+            return _err(pw_error)
+        if password != confirm_password:
+            return _err("Passwords do not match.")
+        new_user = User(
+            display_name=display_name.strip(),
+            email=email_clean,
+            password_hash=hash_password(password),
+            role="kid",
+            kid_profile_id=kid.id,
+            family_id=kid.family_id,
+        )
+        db.add(new_user)
 
     db.commit()
     return RedirectResponse(f"/parent/kids/{kid_id}", status_code=302)

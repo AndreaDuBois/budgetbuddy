@@ -26,32 +26,34 @@
       </div>
 
       <div class="input-field">
-        <input type="email" id="email" name="email" required inputmode="email"
-               value="{{ (form.email if form else (kid_user.email if kid_user else '')) }}" />
+        <input type="email" id="email" name="email" inputmode="email" autocomplete="email"
+               value="{{ (form.email if form else (kid_user.email if kid_user else '')) }}"
+               oninput="toggleLogin(this.value)" />
         <label for="email" {% if (form and form.email) or kid_user %}class="active"{% endif %}>
-          Login Email
+          Login Email <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(optional)</span>
         </label>
       </div>
-
-      <div class="input-field">
-        <input type="password" id="password" name="password"
-               {% if not edit_mode %}required{% endif %}
-               autocomplete="new-password" />
-        <label for="password">
-          Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
-        </label>
-      </div>
-      <div class="input-field">
-        <input type="password" id="confirm_password" name="confirm_password"
-               {% if not edit_mode %}required{% endif %}
-               autocomplete="new-password" />
-        <label for="confirm_password">
-          Confirm Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
-        </label>
-      </div>
-      <p style="font-size:0.8rem;color:#757575;margin:-0.5rem 0 1rem 0">
-        Password must be at least 8 characters and contain a number or special character.
+      <p style="font-size:0.8rem;color:#9e9e9e;margin:-0.75rem 0 0.75rem 0">
+        Leave blank for young kids — you can always add a login later.
       </p>
+
+      <div id="login-fields" style="display:none">
+        <div class="input-field">
+          <input type="password" id="password" name="password" autocomplete="new-password" />
+          <label for="password">
+            Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
+          </label>
+        </div>
+        <div class="input-field">
+          <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" />
+          <label for="confirm_password">
+            Confirm Password{% if edit_mode %} <span class="grey-text text-darken-1" style="font-weight:400;font-size:0.85rem">(leave blank to keep current)</span>{% endif %}
+          </label>
+        </div>
+        <p style="font-size:0.8rem;color:#757575;margin:-0.5rem 0 1rem 0">
+          At least 8 characters with a number or special character.
+        </p>
+      </div>
 
       <div class="section-heading" style="margin-top:1.25rem">Avatar Color</div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:0.5rem 0 1.25rem">
@@ -90,5 +92,19 @@ function selectColor(color, el) {
   document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
 }
+
+function toggleLogin(val) {
+  document.getElementById('login-fields').style.display = val.trim() ? 'block' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var emailVal = document.getElementById('email').value;
+  {% if kid_user %}
+  // Edit mode with existing account — always show
+  document.getElementById('login-fields').style.display = 'block';
+  {% else %}
+  toggleLogin(emailVal);
+  {% endif %}
+});
 </script>
 {% endblock %}
