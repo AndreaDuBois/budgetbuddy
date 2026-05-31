@@ -150,6 +150,12 @@ async def join_link_post(request: Request, token: str, db: Session = Depends(get
         return RedirectResponse("/login", status_code=302)
 
     user.family_id = invite.family_id
+
+    # If this is a kid invite, also link the user to the correct KidProfile
+    if invite.role == "kid" and invite.kid_profile_id:
+        user.kid_profile_id = invite.kid_profile_id
+        user.role = "kid"
+
     invite.used_at = datetime.utcnow()
     db.commit()
 
@@ -198,14 +204,29 @@ async def join_post(
 
     if invite.role == "kid":
         kid_user = db.query(User).filter(User.kid_profile_id == invite.kid_profile_id).first()
-        if not kid_user:
-            return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "Kid account not found. Ask a parent to re-create the invite."})
-        conflict = db.query(User).filter(User.email == email_clean, User.id != kid_user.id).first()
-        if conflict:
-            return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "That email is already in use."})
-        kid_user.email = email_clean
-        kid_user.display_name = display_name.strip()
-        kid_user.password_hash = hash_password(password)
+        if kid_user:
+            # Kid already has an account — update email/password and ensure family is correct
+            conflict = db.query(User).filter(User.email == email_clean, User.id != kid_user.id).first()
+            if conflict:
+                return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "That email is already in use."})
+            kid_user.email = email_clean
+            kid_user.display_name = display_name.strip()
+            kid_user.password_hash = hash_password(password)
+            kid_user.family_id = invite.family_id  # Always stamp correct family
+        else:
+            # Kid was added without an email — create their login account now
+            if db.query(User).filter(User.email == email_clean).first():
+                return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "That email is already in use by another account."})
+            kid_profile_name = invite.kid_profile.name if invite.kid_profile else display_name.strip()
+            kid_user = User(
+                display_name=kid_profile_name,
+                email=email_clean,
+                password_hash=hash_password(password),
+                role="kid",
+                kid_profile_id=invite.kid_profile_id,
+                family_id=invite.family_id,
+            )
+            db.add(kid_user)
     else:
         if db.query(User).filter(User.email == email_clean).first():
             return templates.TemplateResponse(request, "join.html", {**ctx_base, "error": "An account with that email already exists."})
