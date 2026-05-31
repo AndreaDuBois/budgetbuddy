@@ -107,6 +107,9 @@
               border-bottom:1px solid #f0f0f0;border-right:1px solid #e0e0e0;
               min-width:130px;max-width:160px">
               <div style="font-weight:500;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cat.name }}</div>
+              {% if cat.notes %}
+              <div style="font-size:0.72rem;color:#5c6bc0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ cat.notes }}">{{ cat.notes }}</div>
+              {% endif %}
               {% if cat.qty_needed %}
               <div class="grey-text" style="font-size:0.72rem">Qty: {{ cat.qty_needed }}</div>
               {% endif %}
