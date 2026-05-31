@@ -30,57 +30,67 @@
 
 <form method="post" action="/parent/events/{{ event.id }}/budgets" id="budget-form">
 
-  {# ── Per-kid total budget cards ─────────────────────────────── #}
-  <div style="display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.25rem">
+  {# ── Per-kid total budget cards — horizontal scroll, never wraps ── #}
+  <div style="display:flex;gap:0.75rem;overflow-x:auto;padding-bottom:0.5rem;margin-bottom:1.25rem;-webkit-overflow-scrolling:touch">
     {% for kid in kids %}
-    <div class="card" style="flex:1;min-width:160px;margin:0">
+    <div class="card" style="flex:0 0 170px;margin:0">
       <div class="card-content" style="padding:0.875rem 1rem">
-        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.75rem">
-          <div class="member-avatar" style="background:{{ kid.avatar_color }};width:32px;height:32px;font-size:0.9rem;flex-shrink:0">
+        <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.65rem">
+          <div class="member-avatar" style="background:{{ kid.avatar_color }};width:28px;height:28px;font-size:0.8rem;flex-shrink:0">
             {{ kid.name[0]|upper }}
           </div>
-          <span style="font-weight:600;font-size:0.95rem">{{ kid.name }}</span>
+          <span style="font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ kid.name }}</span>
         </div>
 
-        <label style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9e9e9e;display:block;margin-bottom:0.35rem">
+        <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:#9e9e9e;display:block;margin-bottom:0.3rem">
           Total Budget
         </label>
         <div style="position:relative;display:flex;align-items:center">
-          <span style="position:absolute;left:8px;color:#9e9e9e;font-size:0.9rem;pointer-events:none">$</span>
+          <span style="position:absolute;left:8px;color:#9e9e9e;font-size:0.88rem;pointer-events:none">$</span>
           <input type="number" name="total_{{ kid.id }}" id="total_{{ kid.id }}"
                  min="0" step="0.01"
                  value="{{ totals.get(kid.id, 0) | round(2) }}"
                  oninput="updateRemaining({{ kid.id }})"
-                 style="width:100%;padding:0.45rem 0.4rem 0.45rem 1.5rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.95rem;font-weight:600" />
+                 style="width:100%;padding:0.4rem 0.35rem 0.4rem 1.4rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.9rem;font-weight:600" />
         </div>
 
-        <div style="margin-top:0.6rem;font-size:0.82rem" id="summary_{{ kid.id }}">
-          <span class="grey-text">Allocated: </span>
-          <span id="alloc_{{ kid.id }}" style="font-weight:600">$0.00</span>
-          <span class="grey-text"> · Remaining: </span>
-          <span id="remain_{{ kid.id }}" style="font-weight:600">—</span>
+        <div style="margin-top:0.5rem;font-size:0.78rem;line-height:1.4">
+          <span class="grey-text">Alloc: </span><span id="alloc_{{ kid.id }}" style="font-weight:600">$0.00</span><br>
+          <span class="grey-text">Left: </span><span id="remain_{{ kid.id }}" style="font-weight:600">—</span>
         </div>
       </div>
     </div>
     {% endfor %}
   </div>
 
-  {# ── Category allocations table ─────────────────────────────── #}
-  <div class="card" style="overflow:hidden">
-    <div style="overflow-x:auto">
-      <table class="highlight" style="min-width:360px">
+  {# ── Category table — sticky header row + sticky category column ── #}
+  <div class="card" style="overflow:visible">
+    <div id="table-scroll" style="overflow:auto;max-height:65vh;border-radius:4px">
+      <table style="border-collapse:separate;border-spacing:0;width:100%">
         <thead>
-          <tr class="indigo lighten-5">
-            <th style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:#5c6bc0">
+          <tr>
+            {# Corner cell: sticky top AND left #}
+            <th style="
+              position:sticky;top:0;left:0;z-index:30;
+              background:#e8eaf6;min-width:130px;max-width:160px;
+              padding:0.75rem 0.75rem;
+              font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.3px;color:#5c6bc0;
+              border-bottom:2px solid #c5cae9;border-right:1px solid #c5cae9;
+              white-space:nowrap">
               Category
             </th>
             {% for kid in kids %}
-            <th style="text-align:center;padding:0.75rem">
-              <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-                <div class="member-avatar" style="background:{{ kid.avatar_color }};width:28px;height:28px;font-size:0.8rem">
+            <th style="
+              position:sticky;top:0;z-index:20;
+              background:#e8eaf6;min-width:90px;
+              padding:0.6rem 0.5rem;text-align:center;
+              border-bottom:2px solid #c5cae9;
+              {% if not loop.last %}border-right:1px solid #dde0f5;{% endif %}">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:3px">
+                <div class="member-avatar" style="background:{{ kid.avatar_color }};width:26px;height:26px;font-size:0.75rem">
                   {{ kid.name[0]|upper }}
                 </div>
-                <span style="font-size:0.78rem;font-weight:600;color:#212121">{{ kid.name }}</span>
+                <span style="font-size:0.75rem;font-weight:600;color:#212121;white-space:nowrap">{{ kid.name }}</span>
               </div>
             </th>
             {% endfor %}
@@ -89,22 +99,31 @@
         <tbody>
           {% for cat in event.categories %}
           <tr>
-            <td>
-              <div style="font-weight:500;font-size:0.9rem">{{ cat.name }}</div>
+            {# Sticky category label column #}
+            <td style="
+              position:sticky;left:0;z-index:10;
+              background:#fff;
+              padding:0.5rem 0.75rem;
+              border-bottom:1px solid #f0f0f0;border-right:1px solid #e0e0e0;
+              min-width:130px;max-width:160px">
+              <div style="font-weight:500;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cat.name }}</div>
               {% if cat.qty_needed %}
-              <div class="grey-text" style="font-size:0.75rem">Qty: {{ cat.qty_needed }}</div>
+              <div class="grey-text" style="font-size:0.72rem">Qty: {{ cat.qty_needed }}</div>
               {% endif %}
             </td>
             {% for kid in kids %}
-            <td style="text-align:center;padding:0.5rem 0.75rem">
+            <td style="
+              text-align:center;padding:0.4rem 0.5rem;
+              border-bottom:1px solid #f0f0f0;
+              {% if not loop.last %}border-right:1px solid #f5f5f5;{% endif %}">
               <div style="position:relative;display:inline-flex;align-items:center">
-                <span style="position:absolute;left:8px;color:#9e9e9e;font-size:0.9rem;pointer-events:none">$</span>
+                <span style="position:absolute;left:6px;color:#bdbdbd;font-size:0.85rem;pointer-events:none">$</span>
                 <input type="number" name="amount_{{ kid.id }}_{{ cat.id }}"
                        class="cat-input" data-kid="{{ kid.id }}"
                        min="0" step="0.01"
                        value="{{ existing.get(kid.id, {}).get(cat.id, 0) | round(2) }}"
                        oninput="updateRemaining({{ kid.id }})"
-                       style="width:80px;padding:0.4rem 0.4rem 0.4rem 1.5rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.875rem;text-align:right" />
+                       style="width:78px;padding:0.35rem 0.3rem 0.35rem 1.3rem;border:1px solid #e0e0e0;border-radius:4px;font-size:0.85rem;text-align:right" />
               </div>
             </td>
             {% endfor %}
@@ -134,9 +153,7 @@
   </div>
   <div class="modal-footer">
     <a href="#!" class="modal-close btn-flat waves-effect indigo-text">Go Back &amp; Adjust</a>
-    <a href="#!" id="unalloc-save" class="btn waves-effect waves-light indigo darken-1" style="margin-left:0.5rem">
-      Save Anyway
-    </a>
+    <a href="#!" id="unalloc-save" class="btn waves-effect waves-light indigo darken-1" style="margin-left:0.5rem">Save Anyway</a>
   </div>
 </div>
 
@@ -145,35 +162,28 @@
 
 {% block scripts %}
 <script>
-var kidIds = [{% for kid in kids %}{{ kid.id }}{% if not loop.last %},{% endif %}{% endfor %}];
-var kidNames = { {% for kid in kids %}"{{ kid.id }}": "{{ kid.name }}"{% if not loop.last %},{% endif %}{% endfor %} };
+var kidIds   = [{% for kid in kids %}{{ kid.id }}{% if not loop.last %},{% endif %}{% endfor %}];
+var kidNames = { {% for kid in kids %}"{{ kid.id }}":"{{ kid.name }}"{% if not loop.last %},{% endif %}{% endfor %} };
 
 function getAllocated(kidId) {
-  var total = 0;
-  document.querySelectorAll('.cat-input[data-kid="' + kidId + '"]').forEach(function(inp) {
-    total += parseFloat(inp.value) || 0;
-  });
-  return total;
+  var t = 0;
+  document.querySelectorAll('.cat-input[data-kid="' + kidId + '"]').forEach(function(i){ t += parseFloat(i.value)||0; });
+  return t;
 }
 
 function updateRemaining(kidId) {
   var budget = parseFloat(document.getElementById('total_' + kidId).value) || 0;
   var alloc  = getAllocated(kidId);
   var remain = budget - alloc;
-
   document.getElementById('alloc_' + kidId).textContent = '$' + alloc.toFixed(2);
-
-  var remEl = document.getElementById('remain_' + kidId);
-  if (budget === 0) {
-    remEl.textContent = '—';
-    remEl.style.color = '';
-  } else {
-    remEl.textContent = (remain >= 0 ? '$' : '-$') + Math.abs(remain).toFixed(2);
-    remEl.style.color = remain < 0 ? '#c62828' : remain === 0 ? '#2e7d32' : '#1565c0';
+  var el = document.getElementById('remain_' + kidId);
+  if (budget === 0) { el.textContent = '—'; el.style.color = ''; }
+  else {
+    el.textContent = (remain >= 0 ? '$' : '-$') + Math.abs(remain).toFixed(2);
+    el.style.color  = remain < 0 ? '#c62828' : remain === 0 ? '#2e7d32' : '#1565c0';
   }
 }
 
-// Initialise on load
 document.addEventListener('DOMContentLoaded', function() {
   M.Modal.init(document.querySelectorAll('.modal'));
   kidIds.forEach(updateRemaining);
@@ -182,24 +192,18 @@ document.addEventListener('DOMContentLoaded', function() {
     var lines = [];
     kidIds.forEach(function(kid) {
       var budget = parseFloat(document.getElementById('total_' + kid).value) || 0;
-      if (budget === 0) return;
-      var alloc  = getAllocated(kid);
-      var remain = budget - alloc;
-      if (remain > 0.005) {
+      if (!budget) return;
+      var remain = budget - getAllocated(kid);
+      if (remain > 0.005)
         lines.push('<p style="margin:0.4rem 0"><strong>' + kidNames[kid] + '</strong> has <strong style="color:#1565c0">$' + remain.toFixed(2) + '</strong> unallocated.</p>');
-      }
     });
-
     if (lines.length) {
       e.preventDefault();
       document.getElementById('unalloc-body').innerHTML =
-        '<p style="color:#616161;margin-bottom:0.75rem">The following members have budget money that hasn\'t been assigned to a category yet:</p>' +
+        '<p style="color:#616161;margin-bottom:0.75rem">These members still have unassigned budget:</p>' +
         lines.join('') +
-        '<p style="font-size:0.85rem;color:#9e9e9e;margin-top:0.75rem">Go back and add it to a category, or save as-is and add it later.</p>';
-
-      document.getElementById('unalloc-save').onclick = function() {
-        document.getElementById('budget-form').submit();
-      };
+        '<p style="font-size:0.85rem;color:#9e9e9e;margin-top:0.75rem">Go back and add it to a category, or save as-is.</p>';
+      document.getElementById('unalloc-save').onclick = function(){ document.getElementById('budget-form').submit(); };
       M.Modal.getInstance(document.getElementById('unalloc-modal')).open();
     }
   });
