@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}Receipt — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}Receipt â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -15,8 +15,8 @@
       <div>
         <div style="font-weight:700;font-size:1.1rem">{{ receipt.store_name or 'Unknown Store' }}</div>
         <div class="grey-text text-darken-1" style="font-size:0.85rem">
-          {{ receipt.kid.name }} · {{ receipt.upload_method | capitalize }}
-          {% if receipt.receipt_date %} · {{ receipt.receipt_date.strftime('%b %d, %Y') }}{% endif %}
+          {{ receipt.kid.name }} Â· {{ receipt.upload_method | capitalize }}
+          {% if receipt.receipt_date %} Â· {{ receipt.receipt_date.strftime('%b %d, %Y') }}{% endif %}
         </div>
       </div>
       {% if receipt.status == 'confirmed' %}
@@ -49,7 +49,7 @@
           <td>{{ item.quantity }}</td>
           <td>${{ "%.2f"|format(item.total_price) }}</td>
           <td>
-            {% if item.category %}{{ item.category.name }}{% else %}<span class="grey-text">—</span>{% endif %}
+            {% if item.category %}{{ item.category.name }}{% else %}<span class="grey-text">â€”</span>{% endif %}
           </td>
         </tr>
         {% endfor %}

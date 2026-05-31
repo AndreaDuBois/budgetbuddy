@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}Receipt — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}Receipt â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -14,8 +14,8 @@
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem">
       <div class="grey-text text-darken-1" style="font-size:0.85rem">
         {{ receipt.event.name }}
-        {% if receipt.receipt_date %} · {{ receipt.receipt_date.strftime('%b %d, %Y') }}{% endif %}
-        · {{ receipt.upload_method | capitalize }}
+        {% if receipt.receipt_date %} Â· {{ receipt.receipt_date.strftime('%b %d, %Y') }}{% endif %}
+        Â· {{ receipt.upload_method | capitalize }}
       </div>
       {% if receipt.status == 'confirmed' %}
         <span class="chip green white-text" style="font-size:0.72rem;height:22px;line-height:22px;margin:0">Confirmed</span>
@@ -50,7 +50,7 @@
             {% elif item.category %}
               {{ item.category.name }}
             {% else %}
-              <span class="grey-text">—</span>
+              <span class="grey-text">â€”</span>
             {% endif %}
           </td>
         </tr>

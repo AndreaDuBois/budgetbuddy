@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}Photo Receipt — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}Photo Receipt â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -31,7 +31,7 @@
       {% if role == 'parent' and kids %}
       <div class="input-field">
         <select id="kid_id" name="kid_id" required>
-          <option value="" disabled selected>— Select a member —</option>
+          <option value="" disabled selected>â€” Select a member â€”</option>
           {% for kid in kids %}
           <option value="{{ kid.id }}">{{ kid.name }}</option>
           {% endfor %}
@@ -46,7 +46,7 @@
                accept="image/*" capture="environment"
                style="margin-top:0.5rem" />
         <p class="grey-text" style="font-size:0.78rem;margin:0.25rem 0 0">
-          JPG, PNG, or WEBP · Max 10 MB · Tip: lay the receipt flat and get good lighting
+          JPG, PNG, or WEBP Â· Max 10 MB Â· Tip: lay the receipt flat and get good lighting
         </p>
       </div>
 
@@ -81,7 +81,7 @@ document.getElementById('image_file').addEventListener('change', function(e) {
 
 document.querySelector('form').addEventListener('submit', function() {
   const btn = document.getElementById('submit-btn');
-  btn.innerHTML = '<i class="material-icons left">hourglass_top</i>Scanning…';
+  btn.innerHTML = '<i class="material-icons left">hourglass_top</i>Scanningâ€¦';
   btn.disabled = true;
 });
 </script>

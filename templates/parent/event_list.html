@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}Events — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}Events â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -27,7 +27,7 @@
       <div style="font-weight:500;font-size:0.95rem">{{ event.name }}</div>
       <div class="grey-text text-darken-1" style="font-size:0.8rem">
         {{ event.categories | length }} categor{{ 'y' if event.categories|length == 1 else 'ies' }}
-        {% if event.description %} · {{ event.description[:50] }}{% if event.description|length > 50 %}…{% endif %}{% endif %}
+        {% if event.description %} Â· {{ event.description[:50] }}{% if event.description|length > 50 %}â€¦{% endif %}{% endif %}
       </div>
     </div>
     {% if event.is_active %}

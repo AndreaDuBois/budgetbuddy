@@ -1,4 +1,4 @@
-app = "budgetbuddy"
+app = "pocketmoney"
 primary_region = "mia"
 
 [build]
@@ -19,6 +19,6 @@ primary_region = "mia"
   cpus = 1
 
 [[mounts]]
-  source = "budgetbuddy_data"
+  source = "pocketmoney_data"
   destination = "/data"
   initial_size = "3gb"

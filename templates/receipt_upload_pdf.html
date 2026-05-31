@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}Upload PDF Receipt — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}Upload PDF Receipt â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -31,7 +31,7 @@
       {% if role == 'parent' and kids %}
       <div class="input-field">
         <select id="kid_id" name="kid_id" required>
-          <option value="" disabled selected>— Select a member —</option>
+          <option value="" disabled selected>â€” Select a member â€”</option>
           {% for kid in kids %}
           <option value="{{ kid.id }}">{{ kid.name }}</option>
           {% endfor %}
@@ -46,7 +46,7 @@
                accept=".pdf,application/pdf"
                style="margin-top:0.5rem" />
         <p class="grey-text" style="font-size:0.78rem;margin:0.25rem 0 0">
-          PDF only · Max 10 MB · Works best with digital or emailed receipts
+          PDF only Â· Max 10 MB Â· Works best with digital or emailed receipts
         </p>
       </div>
 
@@ -70,7 +70,7 @@
 <script>
 document.querySelector('form').addEventListener('submit', function() {
   const btn = document.getElementById('submit-btn');
-  btn.innerHTML = '<i class="material-icons left">hourglass_top</i>Reading PDF…';
+  btn.innerHTML = '<i class="material-icons left">hourglass_top</i>Reading PDFâ€¦';
   btn.disabled = true;
 });
 </script>

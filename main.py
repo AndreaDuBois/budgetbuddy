@@ -15,7 +15,7 @@ Base.metadata.create_all(bind=engine)
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
-app = FastAPI(title="BudgetBuddy", docs_url=None, redoc_url=None)
+app = FastAPI(title="Pocket Money", docs_url=None, redoc_url=None)
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")

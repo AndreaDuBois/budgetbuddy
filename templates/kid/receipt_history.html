@@ -1,5 +1,5 @@
-{% extends "base_app.html" %}
-{% block title %}My Receipts — BudgetBuddy{% endblock %}
+﻿{% extends "base_app.html" %}
+{% block title %}My Receipts â€” Pocket Money{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -26,7 +26,7 @@
     <div style="flex:1;min-width:0">
       <div style="font-weight:500;font-size:0.95rem">{{ receipt.store_name or 'Receipt' }}</div>
       <div class="grey-text text-darken-1" style="font-size:0.8rem">
-        {% if receipt.total_amount %}${{ "%.2f"|format(receipt.total_amount) }} · {% endif %}
+        {% if receipt.total_amount %}${{ "%.2f"|format(receipt.total_amount) }} Â· {% endif %}
         {{ receipt.created_at.strftime('%b %d, %Y') }}
       </div>
     </div>

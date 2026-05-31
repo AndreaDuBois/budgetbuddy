@@ -1,6 +1,6 @@
 {
-  "name": "BudgetBuddy",
-  "short_name": "BudgetBuddy",
+  "name": "Pocket Money",
+  "short_name": "Pocket Money",
   "description": "Family school clothes budget tracker",
   "start_url": "/",
   "display": "standalone",
