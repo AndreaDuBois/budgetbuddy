@@ -27,13 +27,11 @@ def _auth(request: Request):
     return user, {"current_user": user, "role": user.get("role")}
 
 
-def _active_event(db: Session):
-    return (
-        db.query(ShoppingEvent)
-        .filter(ShoppingEvent.is_active == True)
-        .order_by(ShoppingEvent.created_at.desc())
-        .first()
-    )
+def _active_event(db: Session, family_id: int = 0):
+    q = db.query(ShoppingEvent).filter(ShoppingEvent.is_active == True)
+    if family_id:
+        q = q.filter(ShoppingEvent.family_id == family_id)
+    return q.order_by(ShoppingEvent.created_at.desc()).first()
 
 
 def _recalc_spent(db: Session, kid_id: int, event_id: int):
@@ -97,20 +95,10 @@ async def upload_manual_page(
     if not user:
         return ctx
 
-    event = (
-        db.query(ShoppingEvent).filter(ShoppingEvent.id == event_id).first()
-        if event_id else _active_event(db)
-    )
-    all_events = (
-        db.query(ShoppingEvent)
-        .filter(ShoppingEvent.is_active == True)
-        .order_by(ShoppingEvent.created_at.desc())
-        .all()
-    )
+    event, all_events, kids = _ctx_for_upload(user, db, event_id)
 
     # Determine which kid the receipt is for
     if user.get("role") == "parent":
-        kids = db.query(KidProfile).order_by(KidProfile.name).all()
         selected_kid = db.query(KidProfile).filter(KidProfile.id == kid_id).first() if kid_id else None
     else:
         kids = []
@@ -209,12 +197,23 @@ async def upload_manual_post(request: Request, db: Session = Depends(get_db)):
 
 def _ctx_for_upload(user, db, event_id):
     """Return (event, all_events, kids) for upload pages."""
-    event = (db.query(ShoppingEvent).filter(ShoppingEvent.id == event_id).first()
-             if event_id else _active_event(db))
-    all_events = (db.query(ShoppingEvent)
-                  .filter(ShoppingEvent.is_active == True)
-                  .order_by(ShoppingEvent.created_at.desc()).all())
-    kids = db.query(KidProfile).order_by(KidProfile.name).all() if user.get("role") == "parent" else []
+    fid = int(user.get("family_id", 0))
+    all_events = (
+        db.query(ShoppingEvent)
+        .filter(ShoppingEvent.is_active == True, ShoppingEvent.family_id == fid)
+        .order_by(ShoppingEvent.created_at.desc())
+        .all()
+    )
+    if event_id:
+        event = db.query(ShoppingEvent).filter(
+            ShoppingEvent.id == event_id, ShoppingEvent.family_id == fid
+        ).first()
+    else:
+        event = all_events[0] if all_events else None
+    kids = (
+        db.query(KidProfile).filter(KidProfile.family_id == fid).order_by(KidProfile.name).all()
+        if user.get("role") == "parent" else []
+    )
     return event, all_events, kids
 
 

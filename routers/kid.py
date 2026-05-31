@@ -22,12 +22,13 @@ def _get_kid(user: dict, db: Session):
     return db.query(KidProfile).filter(KidProfile.id == kid_id).first()
 
 
-def _active_event(db: Session) -> ShoppingEvent | None:
+def _family_events(db: Session, family_id: int):
+    """All active events scoped to a family."""
     return (
         db.query(ShoppingEvent)
-        .filter(ShoppingEvent.is_active == True)
+        .filter(ShoppingEvent.is_active == True, ShoppingEvent.family_id == family_id)
         .order_by(ShoppingEvent.created_at.desc())
-        .first()
+        .all()
     )
 
 
@@ -43,18 +44,15 @@ async def dashboard(request: Request, event_id: int = 0, db: Session = Depends(g
     if not kid:
         return RedirectResponse("/login", status_code=302)
 
-    # Select the event to display
-    if event_id:
-        event = db.query(ShoppingEvent).filter(ShoppingEvent.id == event_id).first()
-    else:
-        event = _active_event(db)
+    fid = kid.family_id or 0
+    all_events = _family_events(db, fid)
 
-    all_events = (
-        db.query(ShoppingEvent)
-        .filter(ShoppingEvent.is_active == True)
-        .order_by(ShoppingEvent.created_at.desc())
-        .all()
-    )
+    if event_id:
+        event = db.query(ShoppingEvent).filter(
+            ShoppingEvent.id == event_id, ShoppingEvent.family_id == fid
+        ).first()
+    else:
+        event = all_events[0] if all_events else None
 
     entries = []
     if event:
@@ -110,13 +108,8 @@ async def upload_picker(request: Request, db: Session = Depends(get_db)):
     if not kid:
         return RedirectResponse("/login", status_code=302)
 
-    event = _active_event(db)
-    all_events = (
-        db.query(ShoppingEvent)
-        .filter(ShoppingEvent.is_active == True)
-        .order_by(ShoppingEvent.created_at.desc())
-        .all()
-    )
+    all_events = _family_events(db, kid.family_id or 0)
+    event = all_events[0] if all_events else None
 
     ctx.update({"kid": kid, "event": event, "all_events": all_events, "active": "upload"})
     return templates.TemplateResponse(request, "kid/upload.html", ctx)
